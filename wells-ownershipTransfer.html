@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> طلبات نقل ملكية الآبار</title>
+    <style>
+        :root {
+            --primary-color: #1b5e20;
+            --secondary-color: #2e7d32;
+            --accent-color: #43a047;
+            --light-color: #e8f5e9;
+            --success-color: #4caf50;
+            --dark-green: #0a3d0f;
+            --border-radius: 8px;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #e8f5e9, #c8e6c9);
+            color: #333;
+            line-height: 1.6;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" opacity="0.1"><path d="M50 10 L90 50 L50 90 L10 50 Z" stroke="white" stroke-width="5" fill="none" /></svg>');
+            background-size: 200px;
+            opacity: 0.1;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            background: #f5f5f5;
+            transition: var(--transition);
+            font-weight: 600;
+            color: var(--primary-color);
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid var(--accent-color);
+        }
+
+        .tab:hover {
+            background: var(--light-color);
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Inbox Styles */
+        .inbox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-box input {
+            padding: 0.7rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            width: 300px;
+        }
+
+        .requests-grid {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        .grid-header {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1.5fr 1.5fr 1fr 1fr;
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            padding: 1rem;
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1.5fr 1.5fr 1fr 1fr;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .grid-row:hover {
+            background-color: var(--light-color);
+        }
+
+        .grid-row:last-child {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .status-new {
+            background-color: #7aebe5;
+            color: #721c24;
+        }
+
+        /* Form Styles */
+        .form-container {
+            background: linear-gradient(to bottom, #ffffff, #f1f8e9);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2.5rem;
+            border: 1px solid #c5e1a5;
+        }
+
+        .form-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 2px solid var(--light-color);
+            position: relative;
+            color: var(--primary-color);
+        }
+
+        .form-header::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            right: 0;
+            width: 60px;
+            height: 3px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            position: relative;
+            padding-right: 5px;
+        }
+
+        label::after {
+            content: "";
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 16px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.9rem;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: #f8fbf8;
+        }
+
+        /* Read-only fields styling */
+        input:read-only, select:read-only, textarea:read-only {
+            background-color: #f0f0f0;
+            color: #666;
+            cursor: not-allowed;
+            border-color: #ccc;
+        }
+
+        /* Text fields - align right */
+        input[type="text"], textarea, select {
+            direction: rtl;
+            text-align: right;
+        }
+
+        /* Numeric fields - align center */
+        input[type="number"] {
+            direction: ltr;
+            text-align: center;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.2);
+            background-color: white;
+        }
+
+        .required::after {
+            content: " *";
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        .notRequired::after {
+
+            color: #f5f7f5;
+            font-weight: bold;
+        }
+        .btn {
+            padding: 0.9rem 1.8rem;
+            background: linear-gradient(to right, var(--secondary-color), var(--accent-color));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: var(--transition);
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 0 0.5rem;
+        }
+
+        .btn:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(to right, #78909c, #90a4ae);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(to right, #67818e, #7c8e99);
+        }
+
+        .form-actions {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .response-container {
+            background: linear-gradient(to bottom, #ffffff, #f1f8e9);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+            display: none;
+            border: 1px solid #a5d6a7;
+        }
+
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--light-color);
+            color: var(--primary-color);
+        }
+
+        .response-success {
+            color: var(--success-color);
+            font-weight: 700;
+        }
+
+        .response-data {
+            background-color: #f8fbf8;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            overflow-x: auto;
+            border: 1px solid #c8e6c9;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        .conditional-field {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f1f8e9;
+            border-radius: var(--border-radius);
+            border-right: 3px solid var(--accent-color);
+        }
+
+        .info-note {
+            background-color: #e3f2fd;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+            border-right: 3px solid #2196f3;
+            font-size: 0.9rem;
+            color: #0d47a1;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            padding: 1.5rem;
+            border-top: 1px solid #c8e6c9;
+            background-color: rgba(232, 245, 233, 0.7);
+            border-radius: var(--border-radius);
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            header {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .btn {
+                display: block;
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+
+            .grid-header, .grid-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .inbox-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .search-group {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+            .search-box {
+                width: 100%;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>خدمات وزارة الطاقة</h1>
+            <p class="subtitle">نقل ملكية بئر مراد ردمه</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="inbox">صندوق الطلبات</div>
+           <div class="tab" data-tab="request">بيانات الطلب</div >
+            <div class="tab" data-tab="response">افادة الوزارة</div >
+        </div>
+
+        <!-- Inbox Page -->
+        <div id="inboxPage" class="page active">
+            <div class="inbox-header">
+                <h2>طلبات نقل ملكية الآبار </h2>
+   </div>
+   <h3>معايير البحث </h3>
+                <div class="search-box">
+                </br>
+
+                    <div class="search-group">
+  <label for="searchInput1" class="notRequired">رقم الطلب</label>
+                        <input type="text" id="searchInput1" placeholder="ابحث برقم الطلب...">
+                          </div>
+                            <div class="search-group">
+                      <label for="searchInput3" class="notRequired">تاريخ الطلب</label>
+                                      <input type="date" id="searchInput3" placeholder="ابحث بإسم البئر ...">
+                                      </div>
+                                          <div class="search-group">
+<label for="searchInput3" class="notRequired">حالة الطلب</label>
+                                      <select id="searchInput4" name="searchInput4">
+                                          <option value="">اختر الحالة</option>
+                                          <option value="Accept">جديد</option>
+                                          <option value="Reject">تمت الموافقة</option>
+                                            <option value="Reject">مرفوض</option>
+                                              <option value="Reject">قيد المراجعة</option>
+                                                </select>
+                                                </div>
+   <div class="search-group">
+<button class="btn">بحث</button>
+</div>
+          </div>
+ <br>
+            <div class="requests-grid">
+                <div class="grid-header">
+                    <div>رقم الطلب</div>
+                    <div>اسم البئر</div>
+                    <div>المنطقة</div>
+                    <div>حالة البئر</div>
+                    <div>تاريخ الطلب</div>
+                    <div>الحالة</div>
+                </div>
+
+                <div class="grid-row" data-request-id="WB-2023-001" onclick="loadRequest('WB-2023-001')">
+                    <div>WB-2023-001</div>
+                    <div>بئر النفط رقم ٤٢</div>
+                    <div>المنطقة الشرقية</div>
+                    <div>مغلق</div>
+                    <div>2023-10-15</div>
+                    <div><span class="status-badge status-new">جديد</span></div>
+                </div>
+
+                <div class="grid-row" data-request-id="WB-2023-002" onclick="loadRequest('WB-2023-002')">
+                    <div>WB-2023-002</div>
+                    <div>بئر الغاز ١٨</div>
+                    <div>منطقة الرياض</div>
+                    <div>مفتوح</div>
+                    <div>2023-10-10</div>
+                    <div><span class="status-badge status-approved">تمت الموافقة</span></div>
+                </div>
+
+                <div class="grid-row" data-request-id="WB-2023-003" onclick="loadRequest('WB-2023-003')">
+                    <div>WB-2023-003</div>
+                    <div>بئر المياه ٧</div>
+                    <div>منطقة مكة</div>
+                    <div>مغلق</div>
+                    <div>2023-10-05</div>
+                    <div><span class="status-badge status-rejected">مرفوض</span></div>
+                </div>
+
+                <div class="grid-row" data-request-id="WB-2023-004" onclick="loadRequest('WB-2023-004')">
+                    <div>WB-2023-004</div>
+                    <div>بئر الاختبار ٣</div>
+                    <div>المنطقة الشمالية</div>
+                    <div>أخرى</div>
+                    <div>2023-09-28</div>
+                    <div><span class="status-badge status-pending">قيد المراجعة</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Form Page -->
+        <div id="requestPage" class="page">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>تفاصيل الطلب</h2>
+                    <!-- <p>جميع الحقول التي تحمل علامة النجمة (<span style="color: #d32f2f;">*</span>) إلزامية</p> -->
+                </div>
+
+                <form id="wellBackfillingRequestForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="requestNumber" class="notRequired">رقم الطلب</label>
+                            <input type="text" id="requestNumber" name="requestNumber" required readonly
+                                   placeholder="سيتم تعبئته تلقائياً">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="wellName" class="notRequired">اسم البئر</label>
+                            <input type="text" id="wellName" name="wellName" required readonly
+                                   placeholder="بئر النفط رقم ٤٢">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="wellStatusId" class="notRequired">وضع البئر الحالي</label>
+                            <select id="wellStatusId" name="wellStatusId" required readonly onchange="toggleWellStatusField()">
+                                <option value="Closed" selected>مغلق</option>
+                            </select>
+
+                            <div id="wellStatusGroup" class="conditional-field">
+                                <label for="wellStatus" class="notRequired">حدد وضع آخر</label>
+                                <input type="text" id="wellStatus" name="wellStatus" readonly
+                                       placeholder="غير مطلوب - البئر مغلق">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tdTvdss" class="notRequired">عمق البئر</label>
+                            <input type="number" id="tdTvdss" name="tdTvdss" step="0.01" required readonly
+                                   placeholder="٣٥٠٠ قدم">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="paReason" class="notRequired">سبب الردم</label>
+                            <textarea id="paReason" name="paReason" rows="3" required readonly
+                                      placeholder="انتهاء العمر الافتراضي للبئر وتوقف الإنتاج">انتهاء العمر الافتراضي للبئر وتوقف الإنتاج</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tdsPpm" class="notRequired">الملوحة</label>
+                            <input type="number" id="tdsPpm" name="tdsPpm" step="0.01" required readonly
+                                   placeholder="١٥٠٠ جزء في المليون">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productionGpm" class="notRequired">معدل الإنتاج</label>
+                            <input type="number" id="productionGpm" name="productionGpm" step="0.01" required readonly
+                                   placeholder="٠ (توقف الإنتاج)">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="formationName" class="notRequired">اسم التكوين</label>
+                            <input type="text" id="formationName" name="formationName" required readonly
+                                   placeholder="تكوين العرب">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="aquiferName" class="notRequired">اسم المصدر</label>
+                            <input type="text" id="aquiferName" name="aquiferName" required readonly
+                                   placeholder="طبقة المياه الجوفية العليا">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="longitude" class="notRequired">خط الطول</label>
+                            <input type="number" id="longitude" name="longitude" step="0.000001" required readonly
+                                   placeholder="٤٥.٣٢١٦٥٤">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="latitude" class="notRequired">خط العرض</label>
+                            <input type="number" id="latitude" name="latitude" step="0.000001" required readonly
+                                   placeholder="٢٤.٧٨٩١٢٣">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="utmZone" class="notRequired">المنطقة</label>
+                            <input type="number" id="utmZone" name="utmZone" step="0.01" required readonly
+                                   placeholder="٣٩">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="yCoordinates" class="notRequired">الإحداثيات (Y)</label>
+                            <input type="number" id="yCoordinates" name="yCoordinates" step="0.01" required readonly
+                                   placeholder="٣٢٥٤٧٨.٦٥">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="xCoordinates" class="notRequired">الإحداثيات (X)</label>
+                            <input type="number" id="xCoordinates" name="xCoordinates" step="0.01" required readonly
+                                   placeholder="٤٥٨٩٢١.٣٢">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+
+                        <button type="button" class="btn btn-secondary" onclick="navigateToInbox()">السابق</button>
+                          <button type="button" class="btn" onclick="navigateToResponse()">التالي</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Response Form Page -->
+        <div id="responsePage" class="page">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>إفادة الوزارة عن طلب نقل الملكية</h2>
+                    <p>جميع الحقول التي تحمل علامة النجمة (<span style="color: #d32f2f;">*</span>) إلزامية</p>
+                </div>
+
+                <form id="mewaStatementForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="mewaRequestNumber" class="notRequired">رقم الطلب</label>
+                            <input type="text" id="mewaRequestNumber" name="requestNumber" required readonly
+                                   placeholder="سيتم تعبئته تلقائياً من نموذج الطلب">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mewaRequestStatus" class="required">حالة الطلب (القرار)</label>
+                            <select id="mewaRequestStatus" name="requestStatus" required>
+                                <option value="">اختر الحالة</option>
+                                <option value="Accept">موافقة</option>
+                                <option value="Reject">رفض</option>
+                            </select>
+                            <div class="info-note">
+                                الموافقة تعني نقل ملكية البئر، الرفض يعني عدم الحاجة للبئر
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mewaStatement" class="required">الإفادة</label>
+                            <select id="mewaStatement" name="statement" required>
+                                <option value="">اختر الإفادة</option>
+                                <option value="Approved">تمت الموافقة</option>
+                                <option value="Rejected">مرفوض</option>
+                                <option value="NeedMoreInfo">بحاجة إلى معلومات إضافية</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mewaNotes">ملاحظات</label>
+                            <textarea id="mewaNotes" name="notes" rows="3"
+                                      placeholder="أدخل أي ملاحظات إضافية هنا"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mewaAttachments">المرفقات</label>
+                            <input type="file" id="mewaAttachments" name="attachments">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn">إرسال الإفادة</button>
+                        <!-- <button type="reset" class="btn btn-secondary">مسح النموذج</button> -->
+                        <button type="button" class="btn btn-secondary" onclick="navigateToRequest()">السابق</button>
+                        <button type="button" class="btn btn-secondary" onclick="navigateToInbox()">العودة</button>
+                    </div>
+                </form>
+
+                <div id="responseResponse" class="response-container">
+                    <div class="response-header">
+                        <h2>رد واجهة البرمجة</h2>
+                        <div class="response-success">تم إرسال الإفادة بنجاح!</div>
+                    </div>
+
+                    <div class="response-data">
+                        <pre id="responseResponseData">في انتظار الرد...</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>2019 - 2025 © Naama</p>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for requests
+        const requestsData = {
+            "WB-2023-001": {
+              requestNum:"WB-2023-001",
+                wellName: "بئر النفط رقم ٤٢",
+                wellStatusId: "Closed",
+                tdTvdss: 3500,
+                paReason: "انتهاء العمر الافتراضي للبئر وتوقف الإنتاج",
+                tdsPpm: 1500,
+                productionGpm: 0,
+                formationName: "تكوين العرب",
+                aquiferName: "طبقة المياه الجوفية العليا",
+                longitude: 45.321654,
+                latitude: 24.789123,
+                utmZone: 39,
+                yCoordinates: 325478.65,
+                xCoordinates: 458921.32
+            },
+            "WB-2023-002": {
+              requestNum:"WB-2023-002",
+                wellName: "بئر الغاز ١٨",
+                wellStatusId: "Open",
+                tdTvdss: 4200,
+                paReason: "تحويل البئر إلى بئر مراقبة",
+                tdsPpm: 1200,
+                productionGpm: 250,
+                formationName: "تكوين الغوار",
+                aquiferName: "طبقة المياه الجوفية السفلى",
+                longitude: 46.543210,
+                latitude: 25.678901,
+                utmZone: 39,
+                yCoordinates: 335621.78,
+                xCoordinates: 467892.45
+            },
+            "WB-2023-003": {
+              requestNum:"WB-2023-003",
+                wellName: "بئر المياه ٧",
+                wellStatusId: "Closed",
+                tdTvdss: 2800,
+                paReason: "تلوث المياه الجوفية",
+                tdsPpm: 2800,
+                productionGpm: 0,
+                formationName: "تكوين السلي",
+                aquiferName: "طبقة المياه الضحلة",
+                longitude: 39.876543,
+                latitude: 21.234567,
+                utmZone: 37,
+                yCoordinates: 298765.43,
+                xCoordinates: 412345.67
+            },
+            "WB-2023-004": {
+              requestNum:"WB-2023-004",
+                wellName: "بئر الاختبار ٣",
+                wellStatusId: "Other",
+                wellStatus: "معلق مؤقتاً",
+                tdTvdss: 3100,
+                paReason: "انتظار نتائج الاختبارات النهائية",
+                tdsPpm: 950,
+                productionGpm: 180,
+                formationName: "تكوين اليمامة",
+                aquiferName: "طبقة المياه المتوسطة",
+                longitude: 44.123456,
+                latitude: 23.456789,
+                utmZone: 38,
+                yCoordinates: 312345.67,
+                xCoordinates: 443215.89
+            }
+        };
+
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+
+                // Add active class to clicked tab
+                this.classList.add('active');
+
+                // Hide all pages
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+
+                // Show the corresponding page
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId + 'Page').classList.add('active');
+            });
+        });
+
+        // Load request data when clicking on a row
+        function loadRequest(requestId) {
+            // Switch to request tab
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            document.querySelector('.tab[data-tab="request"]').classList.add('active');
+
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show request page
+            document.getElementById('requestPage').classList.add('active');
+
+            // Fill form with request data
+            const requestData = requestsData[requestId];
+            if (requestData) {
+
+                document.getElementById('requestNumber').value = requestsData.requestNum;
+
+                document.getElementById('wellName').value = requestData.wellName;
+                document.getElementById('wellStatusId').value = requestData.wellStatusId;
+                document.getElementById('tdTvdss').value = requestData.tdTvdss;
+                document.getElementById('paReason').value = requestData.paReason;
+                document.getElementById('tdsPpm').value = requestData.tdsPpm;
+                document.getElementById('productionGpm').value = requestData.productionGpm;
+                document.getElementById('formationName').value = requestData.formationName;
+                document.getElementById('aquiferName').value = requestData.aquiferName;
+                document.getElementById('longitude').value = requestData.longitude;
+                document.getElementById('latitude').value = requestData.latitude;
+                document.getElementById('utmZone').value = requestData.utmZone;
+                document.getElementById('yCoordinates').value = requestData.yCoordinates;
+                document.getElementById('xCoordinates').value = requestData.xCoordinates;
+
+                // Handle other status
+                if (requestData.wellStatusId === 'Other') {
+                    document.getElementById('wellStatusGroup').style.display = 'block';
+                    document.getElementById('wellStatus').value = requestData.wellStatus;
+                } else {
+                    document.getElementById('wellStatusGroup').style.display = 'none';
+                }
+
+                // Also set the request number in the response form (read-only)
+                document.getElementById('requestNumber').value = requestId;
+                document.getElementById('mewaRequestNumber').value = requestId;
+            }
+        }
+
+        // Toggle well status field
+        function toggleWellStatusField() {
+            const wellStatusId = document.getElementById('wellStatusId');
+            const wellStatusGroup = document.getElementById('wellStatusGroup');
+
+            if (wellStatusId.value === 'Other') {
+                wellStatusGroup.style.display = 'block';
+                document.getElementById('wellStatus').setAttribute('required', 'true');
+            } else {
+                wellStatusGroup.style.display = 'none';
+                document.getElementById('wellStatus').removeAttribute('required');
+            }
+        }
+
+        // Navigate to response section
+        function navigateToResponse() {
+            // Switch to response tab
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            document.querySelector('.tab[data-tab="response"]').classList.add('active');
+
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show response page
+            document.getElementById('responsePage').classList.add('active');
+
+            // Ensure the request number is carried over to the response form
+            const requestNumber = document.getElementById('requestNumber').value;
+            if (requestNumber) {
+                document.getElementById('mewaRequestNumber').value = requestNumber;
+            }
+        }
+
+        // Navigate to request section
+        function navigateToRequest() {
+            // Switch to request tab
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            document.querySelector('.tab[data-tab="request"]').classList.add('active');
+
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show request page
+            document.getElementById('requestPage').classList.add('active');
+        }
+
+        // Navigate to inbox
+        function navigateToInbox() {
+            // Switch to inbox tab
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            document.querySelector('.tab[data-tab="inbox"]').classList.add('active');
+
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show inbox page
+            document.getElementById('inboxPage').classList.add('active');
+        }
+
+        // Handle form submissions
+        document.getElementById('mewaStatementForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitResponseForm();
+        });
+
+        // Submit response form
+        function submitResponseForm() {
+            const form = document.getElementById('mewaStatementForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const responseElement = document.getElementById('responseResponseData');
+            const responseContainer = document.getElementById('responseResponse');
+
+            // Show loading state
+            responseElement.textContent = "جاري إرسال الإفادة إلى واجهة البرمجة...";
+            responseContainer.style.display = 'block';
+
+            // Create response payload
+            const formData = new FormData(form);
+            const payload = {
+                requestNumber: document.getElementById('mewaRequestNumber').value,
+                requestStatus: formData.get('requestStatus'),
+                statement: formData.get('statement'),
+                notes: formData.get('notes'),
+                hasAttachments: formData.get('attachments') ? true : false
+            };
+
+            // Simulate API call
+            setTimeout(() => {
+                const mockResponse = {
+                    status: "success",
+                    message: "تم استلام إفادة الوزارة بنجاح",
+                    requestId: `WEL-RES-${Math.floor(100000 + Math.random() * 900000)}`,
+                    timestamp: new Date().toISOString(),
+                    data: payload
+                };
+
+                responseElement.textContent = JSON.stringify(mockResponse, null, 2);
+                responseContainer.scrollIntoView({ behavior: 'smooth' });
+            }, 1500);
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set the inbox as active by default
+            navigateToInbox();
+        });
+    </script>
+</body>
+</html>
