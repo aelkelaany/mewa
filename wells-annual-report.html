@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>  التقارير السنوية </title>
+    <style>
+        :root {
+            --primary-color: #1b5e20;
+            --secondary-color: #2e7d32;
+            --accent-color: #43a047;
+            --light-color: #e8f5e9;
+            --success-color: #4caf50;
+            --dark-green: #0a3d0f;
+            --border-radius: 8px;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #e8f5e9, #c8e6c9);
+            color: #333;
+            line-height: 1.6;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" opacity="0.1"><path d="M50 10 L90 50 L50 90 L10 50 Z" stroke="white" stroke-width="5" fill="none" /></svg>');
+            background-size: 200px;
+            opacity: 0.1;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            background: #f5f5f5;
+            transition: var(--transition);
+            font-weight: 600;
+            color: var(--primary-color);
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid var(--accent-color);
+        }
+
+        .tab:hover {
+            background: var(--light-color);
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Inbox Styles */
+        .inbox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .search-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .search-box input, .search-box select {
+            padding: 0.7rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            min-width: 150px;
+        }
+
+        .requests-grid {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        .grid-header {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1.5fr 1.5fr 1fr 1fr;
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            padding: 1rem;
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1.5fr 1.5fr 1fr 1fr;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .grid-row:hover {
+            background-color: var(--light-color);
+        }
+
+        .grid-row:last-child {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Form Styles */
+        .form-container {
+            background: linear-gradient(to bottom, #ffffff, #f1f8e9);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2.5rem;
+            border: 1px solid #c5e1a5;
+        }
+
+        .form-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 2px solid var(--light-color);
+            position: relative;
+            color: var(--primary-color);
+        }
+
+        .form-header::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            right: 0;
+            width: 60px;
+            height: 3px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            position: relative;
+            padding-right: 5px;
+        }
+
+        label::after {
+            content: "";
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 16px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.9rem;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: #f8fbf8;
+        }
+
+        /* Read-only fields styling */
+        input:read-only, select:read-only, textarea:read-only {
+            background-color: #f0f0f0;
+            color: #666;
+            cursor: not-allowed;
+            border-color: #ccc;
+        }
+
+        /* Text fields - align right */
+        input[type="text"], textarea, select {
+            direction: rtl;
+            text-align: right;
+        }
+
+        /* Numeric fields - align center */
+        input[type="number"] {
+            direction: ltr;
+            text-align: center;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.2);
+            background-color: white;
+        }
+
+        .required::after {
+            content: " *";
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        .notRequired::after {
+
+            color: #f5f7f5;
+            font-weight: bold;
+        }
+        .btn {
+            padding: 0.9rem 1.8rem;
+            background: linear-gradient(to right, var(--secondary-color), var(--accent-color));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: var(--transition);
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 0 0.5rem;
+        }
+
+        .btn:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(to right, #78909c, #90a4ae);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(to right, #67818e, #7c8e99);
+        }
+
+        .form-actions {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .response-container {
+            background: linear-gradient(to bottom, #ffffff, #f1f8e9);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+            display: none;
+            border: 1px solid #a5d6a7;
+        }
+
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--light-color);
+            color: var(--primary-color);
+        }
+
+        .response-success {
+            color: var(--success-color);
+            font-weight: 700;
+        }
+
+        .response-data {
+            background-color: #f8fbf8;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            overflow-x: auto;
+            border: 1px solid #c8e6c9;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        .conditional-field {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f1f8e9;
+            border-radius: var(--border-radius);
+            border-right: 3px solid var(--accent-color);
+        }
+
+        .info-note {
+            background-color: #e3f2fd;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+            border-right: 3px solid #2196f3;
+            font-size: 0.9rem;
+            color: #0d47a1;
+        }
+
+        .file-download-group {
+            border: 2px solid #c5e1a5;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            background-color: #f8fbf8;
+        }
+
+        .file-download-group label {
+            display: block;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(to right, var(--secondary-color), var(--accent-color));
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .download-btn:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            padding: 1.5rem;
+            border-top: 1px solid #c8e6c9;
+            background-color: rgba(232, 245, 233, 0.7);
+            border-radius: var(--border-radius);
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            header {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .btn {
+                display: block;
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+
+            .grid-header, .grid-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .inbox-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .search-box {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .search-box input, .search-box select {
+                width: 100%;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>خدمات وزارة الطاقة</h1>
+            <p class="subtitle">تقارير الآبار السنوية</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="inbox">صندوق التقارير </div>
+            <div class="tab" data-tab="request">التقارير السنوية</div>
+            <div class="tab" data-tab="response">إفادة الوزارة</div>
+        </div>
+
+        <!-- Inbox Page -->
+        <div id="inboxPage" class="page active">
+            <div class="inbox-header">
+                <h2>طلبات التقارير السنوية الواردة</h2>
+                <div class="search-box">
+                    <div class="search-group">
+                        <label for="searchCompany">بحث بإسم الشركة</label>
+                        <input type="text" id="searchCompany" placeholder="اسم الشركة...">
+                    </div>
+                    <div class="search-group">
+                        <label for="searchYear">بحث بسنة التقرير</label>
+                        <select id="searchYear">
+                            <option value="">كل السنوات</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                            <option value="2021">2021</option>
+                        </select>
+                    </div>
+                    <div class="search-group">
+                        <label for="searchStatus">بحث بحالة الطلب</label>
+                        <select id="searchStatus">
+                            <option value="">كل الحالات</option>
+                            <option value="pending">قيد المراجعة</option>
+                            <option value="approved">تمت الموافقة</option>
+                            <option value="rejected">مرفوض</option>
+                        </select>
+                    </div>
+                    <div class="search-group" style="align-self: flex-end;">
+                        <button class="btn">بحث</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="requests-grid">
+                <div class="grid-header">
+                    <div>رقم الطلب</div>
+                    <div>اسم الشركة</div>
+                    <div>السنة</div>
+
+                    <div>تاريخ الطلب</div>
+                    <div>الحالة</div>
+                </div>
+
+                <div class="grid-row" data-request-id="AR-2023-001" onclick="loadRequest('AR-2023-001')">
+                    <div>AR-2023-001</div>
+                    <div>مصافي النفط</div>
+                    <div>2023</div>
+                    <div>2023-11-15</div>
+                    <div><span class="status-badge status-pending">قيد المراجعة</span></div>
+                </div>
+
+                <div class="grid-row" data-request-id="AR-2023-002" onclick="loadRequest('AR-2023-002')">
+                    <div>AR-2023-002</div>
+                    <div>أرامكو السعودية</div>
+                    <div>2023</div>
+                    <div>2023-11-10</div>
+                    <div><span class="status-badge status-approved">تمت الموافقة</span></div>
+                </div>
+
+                <div class="grid-row" data-request-id="AR-2023-003" onclick="loadRequest('AR-2023-003')">
+                    <div>AR-2023-003</div>
+                    <div>شيفرون</div>
+                    <div>2023</div>
+                    <div>2023-11-05</div>
+                    <div><span class="status-badge status-rejected">مرفوض</span></div>
+                </div>
+
+                <div class="grid-row" data-request-id="AR-2023-004" onclick="loadRequest('AR-2023-004')">
+                    <div>AR-2023-004</div>
+                    <div>أرامكو السعودية</div>
+                    <div>2023</div>
+                    <div>2023-10-28</div>
+                    <div><span class="status-badge status-pending">قيد المراجعة</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Form Page -->
+        <div id="requestPage" class="page">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>بيانات التقارير السنوية</h2>
+
+                </div>
+
+                <form id="annualReportsRequestForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="requestNumber" class="notRequired">رقم الطلب</label>
+                            <input type="text" id="requestNumber" name="requestNumber" required readonly
+                                   placeholder="سيتم تعبئته تلقائياً">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="requesterName" class="notRequired">اسم الشركة</label>
+                            <input type="text" id="requesterName" name="requesterName" required readonly
+                                   placeholder="شركة MOEnergy">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="requesterName" class="notRequired">سنة التقرير</label>
+                            <input type="text" id="requestYear" name="requestYear" required readonly
+                                   placeholder="2025">
+                        </div>
+                        <div class="form-group">
+
+                        </div>
+
+                        <div class="form-group file-download-group">
+                            <label for="drilledWellsReport" class="notRequired">تقرير آبار المياه المحفورة</label>
+                            <a href="#" class="download-btn" onclick="downloadFile('drilledWellsReport')">
+                                <span>تحميل التقرير</span>
+                                <span>📥</span>
+                            </a>
+                            <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">حجم الملف: 2.4 MB</p>
+                        </div>
+
+                        <div class="form-group file-download-group">
+                            <label for="consumptionReport" class="notRequired">تقرير الآبار المستخدمة</label>
+                            <a href="#" class="download-btn" onclick="downloadFile('consumptionReport')">
+                                <span>تحميل التقرير</span>
+                                <span>📥</span>
+                            </a>
+                            <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">حجم الملف: 1.8 MB</p>
+                        </div>
+
+                        <div class="form-group file-download-group">
+                            <label for="abandonedWellsReport" class="notRequired">تقرير الآبار المردومة</label>
+                            <a href="#" class="download-btn" onclick="downloadFile('abandonedWellsReport')">
+                                <span>تحميل التقرير</span>
+                                <span>📥</span>
+                            </a>
+                            <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">حجم الملف: 3.1 MB</p>
+                        </div>
+
+                        <div class="form-group file-download-group">
+                            <label for="monitoringWellsReport" class="notRequired">تقرير آبار مراقبة المياه الجوفية</label>
+                            <a href="#" class="download-btn" onclick="downloadFile('monitoringWellsReport')">
+                                <span>تحميل التقرير</span>
+                                <span>📥</span>
+                            </a>
+                            <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">حجم الملف: 2.7 MB</p>
+                        </div>
+
+                        <div class="form-group file-download-group">
+                            <label for="completionReports" class="notRequired">تقارير إنهاء الحفر</label>
+                            <a href="#" class="download-btn" onclick="downloadFile('completionReports')">
+                                <span>تحميل التقرير</span>
+                                <span>📥</span>
+                            </a>
+                            <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">حجم الملف: 4.2 MB</p>
+                        </div>
+
+                        <div class="form-group file-download-group">
+                            <label for="inspectionReport" class="notRequired">تقرير الرقابة والتفتيش</label>
+                            <a href="#" class="download-btn" onclick="downloadFile('inspectionReport')">
+                                <span>تحميل التقرير</span>
+                                <span>📥</span>
+                            </a>
+                            <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">حجم الملف: 1.5 MB</p>
+                        </div>
+
+                        <div class="form-group file-download-group">
+                            <label for="drillingLicenses" class="notRequired">قائمة برخص حفر الآبار</label>
+                            <a href="#" class="download-btn" onclick="downloadFile('drillingLicenses')">
+                                <span>تحميل التقرير</span>
+                                <span>📥</span>
+                            </a>
+                            <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">حجم الملف: 1.2 MB</p>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+
+                        <button type="button" class="btn btn-secondary" onclick="navigateToInbox()">السابق</button>
+                        <button type="button" class="btn" onclick="navigateToResponse()">التالي</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Response Form Page -->
+        <div id="responsePage" class="page">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>إفادة الوزارة</h2>
+                    <p>جميع الحقول التي تحمل علامة النجمة (<span style="color: #d32f2f;">*</span>) إلزامية</p>
+                </div>
+
+                <form id="annualReportsStatementForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="annualRequestNumber" class="required">رقم الطلب</label>
+                            <input type="text" id="annualRequestNumber" name="requestNumber" required readonly
+                                   placeholder="سيتم تعبئته تلقائياً من نموذج الطلب">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="annualRequestStatus" class="required">حالة الطلب (القرار)</label>
+                            <select id="annualRequestStatus" name="requestStatus" required>
+                                <option value="">اختر الحالة</option>
+                                <option value="Accept">موافقة</option>
+                                <option value="Reject">رفض</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="rejectionReason">سبب الرفض</label>
+                            <select id="rejectionReason" name="rejectionReason">
+                                <option value="">اختر سبب الرفض</option>
+                                <option value="IncompleteReports">تقارير غير مكتملة</option>
+                                <option value="IncorrectData">بيانات غير صحيحة</option>
+                                <option value="MissingDocuments">مستندات مفقودة</option>
+                                <option value="NonCompliance">عدم الامتثال للشروط</option>
+                                <option value="Other">أخرى</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group file-download-group">
+                            <label for="annualAttachments">المرفقات</label>
+                            <a href="#" class="download-btn" onclick="downloadFile('annualAttachments')">
+                                <span>تحميل المرفقات</span>
+                                <span>📥</span>
+                            </a>
+                            <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">حجم الملف: 1.8 MB</p>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn" id="submitResponseBtn">إرسال الإفادة</button>
+                        <!-- <button type="reset" class="btn btn-secondary">مسح النموذج</button> -->
+                        <button type="button" class="btn btn-secondary" onclick="navigateToRequest()">السابق</button>
+                        <button type="button" class="btn btn-secondary" onclick="navigateToInbox()">العودة</button>
+                    </div>
+                </form>
+
+                <div id="annualResponse" class="response-container">
+                    <div class="response-header">
+                        <h2>رد واجهة البرمجة</h2>
+                        <div class="response-success">تم إرسال البيان بنجاح!</div>
+                    </div>
+
+                    <div class="response-data">
+                        <pre id="annualResponseData">في انتظار الرد...</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>2019 - 2025 © Naama</p>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for annual reports requests
+        const annualRequestsData = {
+            "AR-2023-001": {
+                requesterName: "مصافي النفط",
+                year: "2024",
+                reportCount: 7,
+                submissionDate: "2023-11-15",
+                status: "pending"
+            },
+            "AR-2023-002": {
+                requesterName: "أرامكو السعودية",
+                year: "2023",
+                reportCount: 6,
+                submissionDate: "2023-11-10",
+                status: "approved",
+                responseData: {
+                    requestStatus: "Accept",
+                    rejectionReason: ""
+                }
+            },
+            "AR-2023-003": {
+                requesterName: "شيفرون",
+                year: "2023",
+                reportCount: 5,
+                submissionDate: "2023-11-05",
+                status: "rejected",
+                responseData: {
+                    requestStatus: "Reject",
+                    rejectionReason: "IncompleteReports"
+                }
+            },
+            "AR-2023-004": {
+                requesterName: "أرامكو السعودية",
+                year: "2023",
+                reportCount: 7,
+                submissionDate: "2023-10-28",
+                status: "pending"
+            }
+        };
+
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+
+                // Add active class to clicked tab
+                this.classList.add('active');
+
+                // Hide all pages
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+
+                // Show the corresponding page
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId + 'Page').classList.add('active');
+            });
+        });
+
+        // Load request data when clicking on a row
+        function loadRequest(requestId) {
+            // Switch to request tab
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            document.querySelector('.tab[data-tab="request"]').classList.add('active');
+
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show request page
+            document.getElementById('requestPage').classList.add('active');
+
+            // Fill form with request data
+            const requestData = annualRequestsData[requestId];
+            if (requestData) {
+                // Set requestNumber = requestId
+                document.getElementById('requestNumber').value = requestId;
+                document.getElementById('requesterName').value = requestData.requesterName;
+                document.getElementById('requestYear').value = requestData.year;
+
+                // Also set the request number in the response form (read-only)
+                document.getElementById('annualRequestNumber').value = requestId;
+
+                // Set response form fields based on request status
+                setupResponseForm(requestId, requestData.status);
+            }
+        }
+
+        // Setup response form based on request status
+        function setupResponseForm(requestId, status) {
+            const requestStatusField = document.getElementById('annualRequestStatus');
+            const rejectionReasonField = document.getElementById('rejectionReason');
+            const submitBtn = document.getElementById('submitResponseBtn');
+
+            // Reset all fields first
+            requestStatusField.removeAttribute('readonly');
+            rejectionReasonField.removeAttribute('readonly');
+            submitBtn.disabled = false;
+
+            if (status === 'rejected') {
+                // If request is rejected, make all fields read-only and fill with data
+                const requestData = annualRequestsData[requestId];
+                if (requestData && requestData.responseData) {
+                    requestStatusField.value = requestData.responseData.requestStatus;
+                    rejectionReasonField.value = requestData.responseData.rejectionReason;
+                }
+
+                requestStatusField.setAttribute('readonly', 'true');
+                rejectionReasonField.setAttribute('readonly', 'true');
+               submitBtn.disabled = true;
+               submitBtn.style.visibility = 'hidden';
+
+            } else if (status === 'pending') {
+                // If request is pending, make all fields editable
+                requestStatusField.value = '';
+                rejectionReasonField.value = '';
+                requestStatusField.removeAttribute('readonly');
+                rejectionReasonField.removeAttribute('readonly');
+                submitBtn.disabled = false;
+                submitBtn.style.visibility = 'visible';
+
+            } else if (status === 'approved') {
+                // If request is approved, make all fields read-only and fill with data
+                requestStatusField.value = 'Accept';
+                rejectionReasonField.value = '';
+                requestStatusField.setAttribute('readonly', 'true');
+                rejectionReasonField.setAttribute('readonly', 'true');
+                submitBtn.disabled = true;
+                submitBtn.style.visibility = 'hidden';
+            }
+        }
+
+        // Navigate to response section
+        function navigateToResponse() {
+            // Switch to response tab
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            document.querySelector('.tab[data-tab="response"]').classList.add('active');
+
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show response page
+            document.getElementById('responsePage').classList.add('active');
+
+            // Ensure the request number is carried over to the response form
+            const requestNumber = document.getElementById('requestNumber').value;
+            if (requestNumber) {
+                document.getElementById('annualRequestNumber').value = requestNumber;
+
+                // Setup response form based on request status
+                const requestData = annualRequestsData[requestNumber];
+                if (requestData) {
+                    setupResponseForm(requestNumber, requestData.status);
+                }
+            }
+        }
+
+        // Navigate to request section
+        function navigateToRequest() {
+            // Switch to request tab
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            document.querySelector('.tab[data-tab="request"]').classList.add('active');
+
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show request page
+            document.getElementById('requestPage').classList.add('active');
+        }
+
+        // Navigate to inbox
+        function navigateToInbox() {
+            // Switch to inbox tab
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            document.querySelector('.tab[data-tab="inbox"]').classList.add('active');
+
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show inbox page
+            document.getElementById('inboxPage').classList.add('active');
+        }
+
+        // Handle form submissions
+        document.getElementById('annualReportsStatementForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitAnnualResponseForm();
+        });
+
+        // Submit response form
+        function submitAnnualResponseForm() {
+            const form = document.getElementById('annualReportsStatementForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const responseElement = document.getElementById('annualResponseData');
+            const responseContainer = document.getElementById('annualResponse');
+
+            // Show loading state
+            responseElement.textContent = "جاري إرسال البيان إلى واجهة البرمجة...";
+            responseContainer.style.display = 'block';
+
+            // Create response payload
+            const formData = new FormData(form);
+            const payload = {
+                requestNumber: document.getElementById('annualRequestNumber').value,
+                requestStatus: formData.get('requestStatus'),
+                rejectionReason: formData.get('rejectionReason'),
+                hasAttachments: true
+            };
+
+            // Simulate API call
+            setTimeout(() => {
+                const mockResponse = {
+                    status: "success",
+                    message: "تم استلام بيان التقارير السنوية بنجاح",
+                    requestId: `AR-RES-${Math.floor(100000 + Math.random() * 900000)}`,
+                    timestamp: new Date().toISOString(),
+                    data: payload
+                };
+
+                responseElement.textContent = JSON.stringify(mockResponse, null, 2);
+                responseContainer.scrollIntoView({ behavior: 'smooth' });
+            }, 1500);
+        }
+
+        // Download file function
+        function downloadFile(fileType) {
+            alert(`سيتم تحميل ملف ${fileType}`);
+            // In a real application, this would trigger actual file download
+            // For demo purposes, we'll just show an alert
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set the inbox as active by default
+            navigateToInbox();
+        });
+    </script>
+</body>
+</html>
