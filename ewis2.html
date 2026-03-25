@@ -1,0 +1,2774 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EWIS 2.0 — منظومة الاستشعار الذكي المتطور</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ══════════════════════════════════════════════════
+   CSS VARIABLES — MEWA Government Theme
+══════════════════════════════════════════════════ */
+:root{
+  --g1:#1B3A2D; --g2:#2A5240; --g3:#3D7A5C;
+  --sage:#C2D69B; --sage-lt:#DFF0C0; --sage-bg:rgba(194,214,155,0.13);
+  --white:#fff; --bg:#F4F7F2; --card:#fff; --page:#EDF2E8;
+  --blt:#E2ECD8; --bmd:#C2D69B;
+  --td:#1B3A2D; --tb:#3A5444; --tm:#7A9A85; --tl:#B0C9B8;
+  --red:#C0392B; --red-bg:rgba(192,57,43,0.09); --red-b:rgba(192,57,43,0.3);
+  --amber:#D4860A; --amb-bg:rgba(212,134,10,0.09); --amb-b:rgba(212,134,10,0.3);
+  --blue:#1A6B99; --blue-bg:rgba(26,107,153,0.09); --blue-b:rgba(26,107,153,0.3);
+  --good:#2A8A4A; --good-bg:rgba(42,138,74,0.09); --good-b:rgba(42,138,74,0.3);
+  --purple:#6B3FA0; --pur-bg:rgba(107,63,160,0.09); --pur-b:rgba(107,63,160,0.3);
+  --font:'Cairo',sans-serif; --font2:'Tajawal',sans-serif;
+  --rad:10px; --shadow:0 2px 12px rgba(27,58,45,0.1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--td);font-family:var(--font);direction:rtl;}
+
+/* ══ TOP BAR ══ */
+#topbar{
+  height:56px;display:flex;align-items:center;
+  padding:0 16px;gap:12px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--g1) 0%,var(--g2) 100%);
+  border-bottom:3px solid var(--sage);
+  box-shadow:0 2px 16px rgba(27,58,45,0.3);
+  z-index:1000;position:relative;
+}
+.logo-box{
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+}
+.logo-badge{
+  width:40px;height:40px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--sage),#9ab85c);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font2);font-size:14px;font-weight:900;color:var(--g1);
+  border:1.5px solid rgba(255,255,255,0.25);
+}
+.logo-txt{font-family:var(--font2);font-size:17px;font-weight:900;color:#fff;line-height:1;}
+.logo-sub{font-size:9px;color:rgba(194,214,155,0.75);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px;}
+
+/* NRI - National Risk Index */
+.nri-box{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(0,0,0,0.2);border-radius:8px;
+  padding:6px 14px;border:1px solid rgba(194,214,155,0.2);
+}
+.nri-label{font-size:10px;color:rgba(194,214,155,0.7);letter-spacing:0.08em;text-transform:uppercase;}
+.nri-score{font-family:var(--font2);font-size:26px;font-weight:900;line-height:1;}
+.nri-trend{font-size:11px;font-weight:700;}
+
+/* Top stats pills */
+.tb-stats{display:flex;gap:6px;align-items:center;}
+.stat-pill{
+  display:flex;flex-direction:column;align-items:center;
+  padding:4px 12px;border-radius:8px;border:1px solid;
+  min-width:70px;cursor:pointer;transition:transform 0.15s;
+}
+.stat-pill:hover{transform:translateY(-1px);}
+.stat-pill .sv{font-family:var(--font2);font-size:18px;font-weight:900;line-height:1;}
+.stat-pill .sl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;}
+.sp-red{background:var(--red-bg);border-color:var(--red-b);color:var(--red);}
+.sp-amb{background:var(--amb-bg);border-color:var(--amb-b);color:var(--amber);}
+.sp-grn{background:var(--sage-bg);border-color:var(--bmd);color:var(--g2);}
+.sp-blu{background:var(--blue-bg);border-color:var(--blue-b);color:var(--blue);}
+
+.tb-right{margin-right:auto;display:flex;align-items:center;gap:10px;}
+.pulse-badge{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--sage);}
+.dot{width:7px;height:7px;border-radius:50%;animation:pulse 2s infinite;}
+.dot.r{background:var(--red);box-shadow:0 0 0 0 var(--red);}
+.dot.g{background:var(--sage);box-shadow:0 0 0 0 var(--sage);}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.35)}}
+#tb-clock{font-size:12px;font-weight:700;color:var(--sage-lt);direction:ltr;font-variant-numeric:tabular-nums;}
+
+/* Top nav buttons */
+.tb-nav-btn{
+  padding:6px 12px;border-radius:8px;font-family:var(--font);
+  font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid;
+  transition:all 0.15s;display:flex;align-items:center;gap:5px;
+}
+.tb-nav-btn.primary{background:var(--sage);border-color:var(--sage);color:var(--g1);}
+.tb-nav-btn.primary:hover{background:var(--sage-lt);}
+.tb-nav-btn.ghost{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);}
+.tb-nav-btn.ghost:hover{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.35);}
+
+/* ══ LAYOUT ══ */
+#shell{display:flex;height:calc(100vh - 56px - 30px);overflow:hidden;}
+
+/* ══ LEFT PANEL ══ */
+#lp{
+  width:280px;flex-shrink:0;background:var(--card);
+  border-left:1px solid var(--blt);display:flex;flex-direction:column;
+  box-shadow:2px 0 8px rgba(27,58,45,0.06);
+}
+.lp-tabs{display:flex;background:var(--g1);flex-shrink:0;}
+.lp-tab{
+  flex:1;padding:9px 4px;font-size:11px;font-weight:700;text-align:center;
+  cursor:pointer;color:rgba(194,214,155,0.6);border-bottom:2px solid transparent;
+  transition:all 0.15s;letter-spacing:0.03em;
+}
+.lp-tab.active{color:var(--sage);border-color:var(--sage);}
+.lp-pane{display:none;flex:1;overflow-y:auto;padding:12px;}
+.lp-pane.active{display:flex;flex-direction:column;gap:8px;}
+.lp-pane::-webkit-scrollbar{width:3px;}
+.lp-pane::-webkit-scrollbar-thumb{background:var(--bmd);border-radius:2px;}
+
+/* section label */
+.slbl{font-size:10px;font-weight:700;color:var(--g3);letter-spacing:0.1em;
+  display:flex;align-items:center;gap:5px;margin-bottom:2px;}
+.slbl::before{content:'';width:3px;height:11px;background:var(--sage);border-radius:2px;flex-shrink:0;}
+
+/* Disease filter pills */
+.dis-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.dis-btn{
+  padding:6px 8px;border-radius:8px;border:1.5px solid var(--blt);
+  font-family:var(--font);font-size:10px;font-weight:700;cursor:pointer;
+  background:var(--bg);color:var(--tm);transition:all 0.15s;text-align:center;
+}
+.dis-btn:hover{border-color:var(--bmd);color:var(--td);}
+.dis-btn.active{background:var(--sage-bg);border-color:var(--g3);color:var(--g1);}
+.dis-btn.fmd{--dc:var(--red);}
+.dis-btn.fmd.active{background:var(--red-bg);border-color:var(--red-b);color:var(--red);}
+.dis-btn.bru.active{background:var(--amb-bg);border-color:var(--amb-b);color:var(--amber);}
+.dis-btn.ppr.active{background:var(--blue-bg);border-color:var(--blue-b);color:var(--blue);}
+.dis-btn.lsd.active{background:var(--pur-bg);border-color:var(--pur-b);color:var(--purple);}
+.dis-btn.ncd.active{background:var(--good-bg);border-color:var(--good-b);color:var(--good);}
+
+/* Farm risk cards */
+.farm-card{
+  background:var(--bg);border:1px solid var(--blt);border-radius:8px;
+  padding:9px 11px;cursor:pointer;transition:all 0.18s;
+  border-right:4px solid var(--bmd);
+}
+.farm-card:hover{box-shadow:var(--shadow);transform:translateX(-2px);}
+.farm-card.r{border-right-color:var(--red);}
+.farm-card.a{border-right-color:var(--amber);}
+.farm-card.g{border-right-color:var(--good);}
+.fc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.fc-name{font-size:12px;font-weight:700;color:var(--td);}
+.fc-score{font-size:13px;font-weight:900;font-family:var(--font2);}
+.fc-score.r{color:var(--red);}
+.fc-score.a{color:var(--amber);}
+.fc-score.g{color:var(--good);}
+.fc-detail{font-size:10px;color:var(--tm);}
+.fc-bar-w{height:3px;background:var(--blt);border-radius:2px;margin-top:5px;}
+.fc-bar{height:3px;border-radius:2px;transition:width 0.6s ease;}
+
+/* Trend chart container */
+#trend-canvas-wrap{background:var(--bg);border:1px solid var(--blt);border-radius:8px;padding:10px;}
+
+/* ══ MAP ══ */
+#map-wrap{flex:1;position:relative;overflow:hidden;min-width:0;}
+#map{position:absolute;inset:0;width:100%;height:100%;}
+.leaflet-container{background:#f2ede4 !important;}
+
+/* Map overlay panels */
+.map-panel{
+  position:absolute;z-index:800;background:rgba(255,255,255,0.96);
+  border:1px solid var(--blt);border-radius:var(--rad);
+  box-shadow:var(--shadow);backdrop-filter:blur(8px);
+}
+#mp-tl{top:12px;right:12px;padding:10px 14px;min-width:160px;}
+.mpt-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:11px;}
+.mpt-lbl{color:var(--tm);font-weight:600;}
+.mpt-val{font-weight:900;font-family:var(--font2);font-size:13px;}
+#mp-legend{bottom:18px;right:12px;padding:10px 14px;}
+.leg-title{font-size:9px;font-weight:700;color:var(--td);margin-bottom:8px;letter-spacing:0.08em;}
+.leg-item{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:10px;color:var(--tm);font-weight:600;}
+.leg-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;border:2px solid rgba(255,255,255,0.7);}
+
+/* Disease type selector on map */
+#map-dis-filter{
+  position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  z-index:800;display:flex;gap:5px;
+  background:rgba(255,255,255,0.95);border:1px solid var(--blt);
+  border-radius:20px;padding:5px 10px;box-shadow:var(--shadow);
+}
+.mdf-btn{
+  padding:4px 12px;border-radius:14px;font-family:var(--font);
+  font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid transparent;
+  transition:all 0.15s;color:var(--tm);background:transparent;
+}
+.mdf-btn:hover{background:var(--bg);}
+.mdf-btn.active{background:var(--g1);color:var(--sage);border-color:var(--g2);}
+
+/* Spread prediction toggle */
+#predict-btn{
+  position:absolute;bottom:18px;left:12px;z-index:800;
+  display:flex;align-items:center;gap:6px;
+  background:rgba(27,58,45,0.92);border:1px solid var(--sage);
+  border-radius:8px;padding:7px 12px;cursor:pointer;
+  font-family:var(--font);font-size:11px;font-weight:700;color:var(--sage);
+  transition:all 0.2s;box-shadow:0 2px 10px rgba(27,58,45,0.3);
+}
+#predict-btn:hover{background:var(--g2);box-shadow:0 4px 16px rgba(27,58,45,0.4);}
+
+/* ══ RIGHT PANEL ══ */
+#rp{
+  width:320px;flex-shrink:0;background:var(--card);
+  border-right:1px solid var(--blt);display:flex;flex-direction:column;
+  box-shadow:-2px 0 8px rgba(27,58,45,0.06);
+}
+.rp-tabs{display:flex;background:var(--g1);flex-shrink:0;}
+.rp-tab{flex:1;padding:9px 4px;font-size:11px;font-weight:700;text-align:center;
+  cursor:pointer;color:rgba(194,214,155,0.6);border-bottom:2px solid transparent;transition:all 0.15s;}
+.rp-tab.active{color:var(--sage);border-color:var(--sage);}
+.rp-pane{display:none;flex:1;overflow:hidden;flex-direction:column;}
+.rp-pane.active{display:flex;}
+
+/* AI Chat pane */
+#chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;}
+#chat-msgs::-webkit-scrollbar{width:3px;}
+#chat-msgs::-webkit-scrollbar-thumb{background:var(--bmd);border-radius:2px;}
+.msg{max-width:88%;padding:9px 12px;border-radius:10px;font-size:12px;line-height:1.65;animation:msgIn 0.25s ease;}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.ai{background:var(--sage-bg);border:1px solid var(--bmd);color:var(--td);
+  border-radius:10px 10px 0 10px;align-self:flex-start;}
+.msg.user{background:var(--g1);color:var(--sage-lt);
+  border-radius:10px 10px 10px 0;align-self:flex-end;text-align:left;}
+.msg.typing{background:var(--sage-bg);border:1px solid var(--bmd);
+  align-self:flex-start;color:var(--tm);}
+.quick-qs{display:flex;flex-direction:column;gap:5px;padding:0 12px 8px;}
+.qq-btn{
+  padding:7px 11px;border-radius:8px;border:1px solid var(--blt);
+  background:var(--bg);font-family:var(--font);font-size:11px;font-weight:600;
+  color:var(--tb);cursor:pointer;transition:all 0.15s;text-align:right;
+}
+.qq-btn:hover{background:var(--sage-bg);border-color:var(--bmd);color:var(--g1);}
+.chat-input-row{
+  padding:10px;border-top:1px solid var(--blt);
+  display:flex;gap:6px;align-items:center;flex-shrink:0;
+}
+#chat-input{
+  flex:1;padding:8px 11px;border:1.5px solid var(--blt);border-radius:8px;
+  font-family:var(--font);font-size:12px;color:var(--td);outline:none;
+  transition:border-color 0.18s;direction:rtl;background:var(--bg);
+}
+#chat-input:focus{border-color:var(--g3);}
+#chat-send{
+  padding:8px 13px;background:var(--g1);border:none;border-radius:8px;
+  font-family:var(--font);font-size:13px;color:var(--sage);cursor:pointer;
+  transition:all 0.15s;flex-shrink:0;
+}
+#chat-send:hover{background:var(--g2);}
+
+/* Alerts pane */
+#alerts-feed{flex:1;overflow-y:auto;padding:10px;}
+#alerts-feed::-webkit-scrollbar{width:3px;}
+#alerts-feed::-webkit-scrollbar-thumb{background:var(--red);border-radius:2px;}
+.al-card{
+  border-radius:8px;padding:10px 12px;margin-bottom:7px;border:1px solid;
+  animation:slideIn 0.28s ease;position:relative;overflow:hidden;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.al-card::after{content:'';position:absolute;right:0;top:0;bottom:0;width:4px;}
+.al-card.critical{background:var(--red-bg);border-color:var(--red-b);}
+.al-card.critical::after{background:var(--red);}
+.al-card.warning{background:var(--amb-bg);border-color:var(--amb-b);}
+.al-card.warning::after{background:var(--amber);}
+.al-card.info{background:var(--blue-bg);border-color:var(--blue-b);}
+.al-card.info::after{background:var(--blue);}
+.al-card.good{background:var(--good-bg);border-color:var(--good-b);}
+.al-card.good::after{background:var(--good);}
+.al-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;}
+.al-type{font-size:9px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:6px;}
+.critical .al-type{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b);}
+.warning .al-type{background:var(--amb-bg);color:var(--amber);border:1px solid var(--amb-b);}
+.info .al-type{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-b);}
+.good .al-type{background:var(--good-bg);color:var(--good);border:1px solid var(--good-b);}
+.al-time{font-size:9px;color:var(--tm);}
+.al-title{font-size:12px;font-weight:700;color:var(--td);margin-bottom:3px;}
+.al-body{font-size:11px;color:var(--tb);line-height:1.55;}
+.al-footer{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
+.al-region{font-size:9px;padding:2px 7px;border-radius:6px;background:rgba(27,58,45,0.08);color:var(--tb);font-weight:700;}
+.al-sms{font-size:9px;padding:2px 7px;border-radius:6px;
+  background:var(--amb-bg);color:var(--amber);border:1px solid var(--amb-b);cursor:pointer;font-weight:700;}
+.al-sms:hover{background:rgba(212,134,10,0.2);}
+
+/* SMS Panel */
+#sms-pane{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;}
+.recip-wrap{display:flex;flex-wrap:wrap;gap:4px;}
+.rcp{padding:4px 9px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;
+  background:var(--bg);border:1.5px solid var(--blt);color:var(--tm);transition:all 0.15s;
+  display:flex;align-items:center;gap:3px;}
+.rcp:hover{border-color:var(--g3);color:var(--td);}
+.rcp.sel{background:var(--sage-bg);border-color:var(--g3);color:var(--g1);}
+.rcp .ck{opacity:0;font-size:9px;color:var(--g3);transition:opacity 0.15s;}
+.rcp.sel .ck{opacity:1;}
+#sms-ta{width:100%;background:var(--bg);border:1.5px solid var(--blt);border-radius:8px;
+  padding:9px;font-family:var(--font);font-size:11px;color:var(--td);
+  resize:none;height:72px;outline:none;direction:rtl;transition:border-color 0.2s;}
+#sms-ta:focus{border-color:var(--g3);}
+.sms-row{display:flex;justify-content:space-between;align-items:center;}
+#sms-chr{font-size:10px;color:var(--tm);}
+#sms-snd{padding:7px 16px;background:linear-gradient(135deg,var(--g1),var(--g3));
+  border:none;border-radius:8px;font-family:var(--font);font-size:11px;font-weight:700;
+  color:#fff;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:5px;}
+#sms-snd:hover{box-shadow:0 3px 12px rgba(27,58,45,0.3);transform:translateY(-1px);}
+.sms-sent{text-align:center;padding:7px;font-size:11px;font-weight:700;color:var(--good);
+  background:var(--good-bg);border:1px solid var(--good-b);border-radius:8px;display:none;}
+
+/* ══ BOTTOM BAR ══ */
+#bottombar{
+  height:30px;display:flex;align-items:center;padding:0 14px;
+  background:var(--g1);border-top:2px solid var(--sage);flex-shrink:0;
+  position:relative;overflow:hidden;
+}
+.bb-items{display:flex;align-items:center;gap:0;flex:1;}
+.bb-it{display:flex;align-items:center;gap:5px;font-size:9px;
+  color:rgba(194,214,155,0.6);padding:0 12px;border-left:1px solid rgba(194,214,155,0.15);}
+.bb-it:first-child{border-left:none;}
+.bb-v{font-size:9px;font-weight:700;color:var(--sage);}
+#bb-prog{position:absolute;bottom:0;right:0;height:2px;background:var(--sage);
+  width:0;transition:width 0.3s;box-shadow:0 0 6px var(--sage);}
+
+/* ══ MODALS ══ */
+.overlay{position:fixed;inset:0;background:rgba(27,58,45,0.7);z-index:9000;
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.overlay.show{display:flex;}
+.modal{
+  background:var(--card);border-radius:14px;width:90%;max-width:640px;
+  max-height:88vh;overflow:hidden;display:flex;flex-direction:column;
+  border:1px solid var(--blt);box-shadow:0 20px 60px rgba(27,58,45,0.25);
+  animation:popIn 0.22s ease;border-top:4px solid var(--sage);
+}
+@keyframes popIn{from{opacity:0;transform:scale(0.93)}to{opacity:1;transform:scale(1)}}
+.modal-head{
+  padding:16px 20px;background:var(--g1);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.modal-title{font-family:var(--font2);font-size:18px;font-weight:900;color:#fff;}
+.modal-close{
+  width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.1);
+  border:none;color:var(--sage);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:background 0.15s;
+}
+.modal-close:hover{background:rgba(255,255,255,0.2);}
+.modal-body{flex:1;overflow-y:auto;padding:20px;}
+.modal-body::-webkit-scrollbar{width:4px;}
+.modal-body::-webkit-scrollbar-thumb{background:var(--bmd);border-radius:2px;}
+.modal-foot{padding:12px 20px;border-top:1px solid var(--blt);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;}
+.btn-primary{padding:9px 20px;background:var(--g1);border:none;border-radius:8px;
+  font-family:var(--font);font-size:12px;font-weight:700;color:#fff;cursor:pointer;transition:all 0.15s;}
+.btn-primary:hover{background:var(--g2);}
+.btn-ghost{padding:9px 20px;background:var(--bg);border:1.5px solid var(--blt);border-radius:8px;
+  font-family:var(--font);font-size:12px;font-weight:700;color:var(--tm);cursor:pointer;transition:all 0.15s;}
+.btn-ghost:hover{border-color:var(--bmd);color:var(--td);}
+
+/* Report modal styles */
+.report-section{margin-bottom:18px;}
+.rs-title{font-family:var(--font2);font-size:15px;font-weight:900;color:var(--g1);
+  border-bottom:2px solid var(--bmd);padding-bottom:5px;margin-bottom:10px;}
+.rs-body{font-size:12px;color:var(--tb);line-height:1.8;}
+.rs-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.rs-kpi{background:var(--bg);border:1px solid var(--blt);border-radius:8px;
+  padding:9px 12px;text-align:center;border-top:3px solid var(--sage);}
+.rs-kpi.red{border-top-color:var(--red);}
+.rs-kpi.amb{border-top-color:var(--amber);}
+.rs-kpi.blu{border-top-color:var(--blue);}
+.rs-kpi-v{font-family:var(--font2);font-size:20px;font-weight:900;color:var(--g1);}
+.rs-kpi-l{font-size:9px;color:var(--tm);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;}
+.rs-table{width:100%;border-collapse:collapse;font-size:11px;}
+.rs-table th{background:var(--g1);color:var(--sage);padding:7px 10px;text-align:right;font-weight:700;}
+.rs-table td{padding:6px 10px;border-bottom:1px solid var(--blt);color:var(--tb);}
+.rs-table tr:hover td{background:var(--bg);}
+.ai-gen-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;
+  background:var(--sage-bg);color:var(--g2);border:1px solid var(--bmd);margin-bottom:10px;
+}
+.report-ai-body{
+  background:var(--bg);border:1px solid var(--blt);border-radius:8px;
+  padding:12px;font-size:12px;color:var(--tb);line-height:1.8;
+  border-right:4px solid var(--g2);min-height:60px;
+}
+
+/* ══ REPORT CENTER ══ */
+.rep-type-tabs{display:flex;gap:5px;margin-bottom:14px;flex-wrap:wrap;}
+.rep-tab-btn{
+  padding:6px 13px;border-radius:8px;border:1.5px solid var(--blt);
+  font-family:var(--font);font-size:11px;font-weight:700;cursor:pointer;
+  background:var(--bg);color:var(--tm);transition:all 0.15s;
+}
+.rep-tab-btn:hover{border-color:var(--bmd);color:var(--td);}
+.rep-tab-btn.active{background:var(--g1);border-color:var(--g1);color:var(--sage);}
+.rep-pane{display:none;}
+.rep-pane.active{display:block;}
+.rep-letterhead{
+  text-align:center;padding:14px 0 12px;
+  border-bottom:2px solid var(--bmd);margin-bottom:14px;
+}
+.rep-lh-title{font-family:var(--font2);font-size:15px;font-weight:900;color:var(--g1);}
+.rep-lh-sub{font-size:10px;color:var(--tm);margin-top:2px;}
+.rep-lh-date{
+  display:inline-block;margin-top:6px;padding:3px 12px;border-radius:12px;
+  background:var(--sage-bg);border:1px solid var(--bmd);
+  font-size:11px;font-weight:700;color:var(--g2);
+}
+.rep-sched-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px;background:var(--bg);border:1px solid var(--blt);
+  border-radius:8px;margin-bottom:6px;
+}
+.rep-sched-info{font-size:11px;color:var(--tb);}
+.rep-sched-info b{color:var(--td);font-weight:700;}
+.rep-sched-badge{
+  font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;
+}
+.rep-sched-badge.sent{background:var(--good-bg);color:var(--good);border:1px solid var(--good-b);}
+.rep-sched-badge.pending{background:var(--amb-bg);color:var(--amber);border:1px solid var(--amb-b);}
+.rep-sched-badge.sched{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-b);}
+.rep-gen-btn{
+  width:100%;padding:10px;margin-top:8px;
+  background:linear-gradient(135deg,var(--g1),var(--g3));
+  border:none;border-radius:8px;font-family:var(--font);font-size:12px;
+  font-weight:700;color:#fff;cursor:pointer;transition:all 0.18s;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.rep-gen-btn:hover{box-shadow:0 4px 14px rgba(27,58,45,0.3);transform:translateY(-1px);}
+.rep-gen-btn:disabled{opacity:0.55;cursor:not-allowed;transform:none;}
+.rep-spin{width:13px;height:13px;border:2px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;border-radius:50%;animation:spin360 0.7s linear infinite;display:none;}
+@keyframes spin360{to{transform:rotate(360deg)}}
+.rep-out{
+  margin-top:12px;background:var(--bg);border:1px solid var(--blt);
+  border-radius:8px;padding:13px;border-right:4px solid var(--g2);
+  font-size:12px;color:var(--tb);line-height:1.85;display:none;
+}
+.rep-out.show{display:block;animation:fadeUp 0.3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ PREDICTIVE INTELLIGENCE ══ */
+.pred-modal-tabs{display:flex;gap:0;background:var(--bg);border:1px solid var(--blt);border-radius:8px;overflow:hidden;margin-bottom:14px;}
+.pred-modal-tab{
+  flex:1;padding:8px 6px;text-align:center;font-size:11px;font-weight:700;
+  cursor:pointer;color:var(--tm);border-left:1px solid var(--blt);transition:all 0.15s;
+}
+.pred-modal-tab:first-child{border-left:none;}
+.pred-modal-tab:hover{background:var(--sage-bg);color:var(--td);}
+.pred-modal-tab.active{background:var(--g1);color:var(--sage);}
+.pred-pane{display:none;}
+.pred-pane.active{display:block;}
+
+/* SIR Chart area */
+.sir-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
+.sir-ctrl-group{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tb);}
+.sir-select{
+  padding:4px 8px;border:1.5px solid var(--blt);border-radius:6px;
+  font-family:var(--font);font-size:11px;color:var(--td);background:var(--bg);outline:none;
+}
+.sir-select:focus{border-color:var(--g3);}
+.sir-days-btn{
+  padding:4px 10px;border-radius:6px;border:1.5px solid var(--blt);
+  font-size:10px;font-weight:700;cursor:pointer;background:var(--bg);color:var(--tm);transition:all 0.15s;
+}
+.sir-days-btn.active{background:var(--g1);border-color:var(--g1);color:var(--sage);}
+#sir-chart-wrap{background:var(--bg);border:1px solid var(--blt);border-radius:8px;padding:10px;margin-bottom:10px;}
+.sir-legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:5px;}
+.sir-leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--tb);font-weight:600;}
+.sir-leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+/* Risk probability table */
+.prob-table{width:100%;border-collapse:collapse;font-size:11px;}
+.prob-table th{background:var(--g1);color:var(--sage);padding:7px 10px;text-align:right;font-weight:700;font-size:10px;}
+.prob-table td{padding:7px 10px;border-bottom:1px solid var(--blt);color:var(--tb);}
+.prob-table tr:hover td{background:var(--bg);}
+.prob-bar-cell{min-width:100px;}
+.prob-bar-wrap{height:5px;background:var(--blt);border-radius:3px;}
+.prob-bar-fill{height:5px;border-radius:3px;transition:width 0.6s ease;}
+.prob-badge{
+  display:inline-block;padding:2px 7px;border-radius:6px;
+  font-size:9px;font-weight:700;text-align:center;
+}
+.prob-badge.h{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b);}
+.prob-badge.m{background:var(--amb-bg);color:var(--amber);border:1px solid var(--amb-b);}
+.prob-badge.l{background:var(--good-bg);color:var(--good);border:1px solid var(--good-b);}
+
+/* What-if scenario */
+.scenario-card{
+  background:var(--bg);border:1px solid var(--blt);border-radius:8px;
+  padding:11px 13px;margin-bottom:8px;cursor:pointer;transition:all 0.15s;
+  border-right:4px solid var(--bmd);
+}
+.scenario-card:hover{box-shadow:var(--shadow);border-color:var(--bmd);}
+.scenario-card.selected{background:var(--sage-bg);border-color:var(--g3);border-right-color:var(--g1);}
+.sc-title{font-size:12px;font-weight:700;color:var(--td);margin-bottom:3px;}
+.sc-desc{font-size:10px;color:var(--tm);line-height:1.5;}
+.sc-result{
+  margin-top:8px;padding:8px 10px;border-radius:6px;
+  background:var(--sage-bg);border:1px solid var(--bmd);
+  font-size:11px;color:var(--tb);line-height:1.6;display:none;
+}
+.sc-result.show{display:block;}
+
+/* Spread prediction overlay */
+.pred-info{
+  position:absolute;bottom:60px;left:12px;z-index:800;
+  background:rgba(255,255,255,0.96);border:1px solid var(--blt);
+  border-radius:8px;padding:10px 13px;max-width:200px;
+  box-shadow:var(--shadow);display:none;
+}
+.pred-title{font-size:10px;font-weight:700;color:var(--td);margin-bottom:6px;}
+.pred-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:10px;color:var(--tm);}
+.pred-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+/* Leaflet popup */
+.lf-pp{font-family:var(--font);direction:rtl;min-width:210px;}
+.lf-pp h3{font-family:var(--font2);font-size:16px;font-weight:900;color:var(--g1);margin-bottom:6px;}
+.pp-badge{display:inline-block;padding:2px 9px;border-radius:8px;font-size:10px;font-weight:700;margin-bottom:8px;}
+.pp-row{display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid #f0f0f0;}
+.pp-row:last-child{border:none;}
+.pp-row b{color:var(--g1);}
+.pp-ai-btn{
+  width:100%;margin-top:8px;padding:7px;background:var(--g1);
+  border:none;border-radius:8px;font-family:var(--font);font-size:11px;font-weight:700;
+  color:var(--sage);cursor:pointer;
+}
+.leaflet-popup-content-wrapper{border-radius:10px!important;border:1px solid var(--blt)!important;box-shadow:var(--shadow)!important;}
+.leaflet-popup-tip{display:none!important;}
+.leaflet-tooltip{
+  background:rgba(255,255,255,0.97)!important;border:1px solid var(--blt)!important;
+  color:var(--td)!important;font-family:var(--font)!important;font-size:11px!important;
+  border-radius:8px!important;padding:6px 10px!important;direction:rtl!important;
+  border-top:3px solid var(--sage)!important;
+}
+.leaflet-tooltip::before{display:none!important;}
+.leaflet-control-zoom{border:1px solid var(--blt)!important;border-radius:8px!important;overflow:hidden;}
+.leaflet-control-zoom a{background:#fff!important;color:var(--g1)!important;border-bottom:1px solid var(--blt)!important;font-size:18px!important;}
+.leaflet-control-zoom a:hover{background:var(--bg)!important;}
+/* ══════════════════════════════════════════════════
+   OUTBREAK MARKER ANIMATIONS
+══════════════════════════════════════════════════ */
+
+/* النبضة الحرجة — حمراء سريعة جداً */
+@keyframes pulse-critical {
+  0%   { box-shadow: 0 0 0 0 rgba(192,57,43,0.85), 0 2px 8px rgba(0,0,0,0.3); transform: scale(1); }
+  35%  { box-shadow: 0 0 0 9px rgba(192,57,43,0.15), 0 2px 8px rgba(0,0,0,0.3); transform: scale(1.1); }
+  70%  { box-shadow: 0 0 0 14px rgba(192,57,43,0), 0 2px 8px rgba(0,0,0,0.3); transform: scale(1); }
+  100% { box-shadow: 0 0 0 0 rgba(192,57,43,0), 0 2px 8px rgba(0,0,0,0.3); transform: scale(1); }
+}
+/* النبضة العالية — برتقالية متوسطة */
+@keyframes pulse-high {
+  0%   { box-shadow: 0 0 0 0 rgba(230,126,34,0.75), 0 2px 6px rgba(0,0,0,0.25); transform: scale(1); }
+  45%  { box-shadow: 0 0 0 7px rgba(230,126,34,0.1), 0 2px 6px rgba(0,0,0,0.25); transform: scale(1.06); }
+  100% { box-shadow: 0 0 0 0 rgba(230,126,34,0), 0 2px 6px rgba(0,0,0,0.25); transform: scale(1); }
+}
+/* النبضة المتوسطة — صفراء بطيئة */
+@keyframes pulse-medium {
+  0%   { box-shadow: 0 0 0 0 rgba(241,196,15,0.65); }
+  55%  { box-shadow: 0 0 0 6px rgba(241,196,15,0.08); }
+  100% { box-shadow: 0 0 0 0 rgba(241,196,15,0); }
+}
+/* النبضة المنخفضة — خضراء هادئة */
+@keyframes pulse-low {
+  0%   { box-shadow: 0 0 0 0 rgba(39,174,96,0.45); }
+  65%  { box-shadow: 0 0 0 5px rgba(39,174,96,0.05); }
+  100% { box-shadow: 0 0 0 0 rgba(39,174,96,0); }
+}
+/* حلقة الخطر المتوسعة — تنمو وتتلاشى من مركز البؤرة */
+@keyframes ripple-critical {
+  0%   { transform: scale(1);   opacity: 0.75; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+@keyframes ripple-high {
+  0%   { transform: scale(1);   opacity: 0.55; }
+  100% { transform: scale(2.0); opacity: 0; }
+}
+/* ══ POLYGON RISK ZONES ══ */
+.poly-toggle-btn{
+  position:absolute;top:12px;left:12px;z-index:800;
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,0.96);border:1.5px solid var(--blt);
+  border-radius:8px;padding:7px 12px;cursor:pointer;
+  font-family:var(--font);font-size:11px;font-weight:700;color:var(--td);
+  box-shadow:var(--shadow);transition:all 0.18s;
+}
+.poly-toggle-btn:hover{border-color:var(--g3);background:var(--sage-bg);}
+.poly-toggle-btn.active{background:var(--g1);border-color:var(--g1);color:var(--sage);}
+
+/* Region highlight popup on map */
+.region-info-panel{
+  position:absolute;top:56px;left:12px;z-index:800;
+  background:rgba(255,255,255,0.97);border:1px solid var(--blt);
+  border-radius:10px;padding:13px 15px;min-width:200px;
+  box-shadow:var(--shadow);display:none;
+  border-top:4px solid var(--g1);
+  animation:fadeUp 0.25s ease;
+}
+.rip-name{font-family:var(--font2);font-size:16px;font-weight:900;color:var(--g1);margin-bottom:5px;}
+.rip-score{display:inline-block;padding:2px 9px;border-radius:8px;font-size:11px;font-weight:700;margin-bottom:8px;}
+.rip-row{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid var(--blt);}
+.rip-row:last-child{border:none;}
+.rip-row b{color:var(--td);}
+.rip-action{
+  margin-top:8px;width:100%;padding:6px;background:var(--g1);border:none;
+  border-radius:6px;font-family:var(--font);font-size:11px;font-weight:700;
+  color:var(--sage);cursor:pointer;transition:all 0.15s;
+}
+.rip-action:hover{background:var(--g2);}
+
+/* ══ TIME SLIDER ══ */
+#time-slider-bar{
+  position:absolute;bottom:56px;left:50%;transform:translateX(-50%);
+  z-index:800;background:rgba(255,255,255,0.97);border:1px solid var(--blt);
+  border-radius:10px;padding:10px 16px;min-width:380px;
+  box-shadow:var(--shadow);display:none;
+}
+#time-slider-bar.show{display:block;animation:fadeUp 0.25s ease;}
+.tsb-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.tsb-title{font-size:11px;font-weight:700;color:var(--td);}
+.tsb-day{font-family:var(--font2);font-size:16px;font-weight:900;color:var(--g1);}
+.tsb-nri{font-size:10px;color:var(--tm);}
+.tsb-nri span{font-weight:900;color:var(--amber);}
+.tsb-controls{display:flex;align-items:center;gap:8px;}
+#time-play-btn{
+  width:28px;height:28px;border-radius:50%;background:var(--g1);border:none;
+  color:var(--sage);font-size:13px;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;transition:all 0.15s;
+}
+#time-play-btn:hover{background:var(--g2);}
+#time-slider{
+  flex:1;-webkit-appearance:none;appearance:none;height:5px;
+  background:linear-gradient(to left,var(--blt),var(--blt));
+  border-radius:3px;outline:none;cursor:pointer;
+}
+#time-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--g1);border:2px solid white;cursor:pointer;
+  box-shadow:0 1px 4px rgba(0,0,0,0.2);
+}
+.tsb-close{width:20px;height:20px;border-radius:50%;background:var(--bg);border:1px solid var(--blt);
+  cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;
+  color:var(--tm);flex-shrink:0;}
+.tsb-close:hover{background:var(--blt);}
+
+#time-toggle-btn{
+  position:absolute;bottom:56px;right:160px;z-index:800;
+  display:flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,0.96);border:1.5px solid var(--blt);
+  border-radius:8px;padding:6px 11px;cursor:pointer;
+  font-family:var(--font);font-size:11px;font-weight:700;color:var(--td);
+  box-shadow:var(--shadow);transition:all 0.18s;
+}
+#time-toggle-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-bg);}
+#time-toggle-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+
+/* ══ AI MAP FUNCTION CALLING ══ */
+.ai-map-action{
+  display:inline-flex;align-items:center;gap:5px;margin-top:6px;
+  padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;
+  background:var(--sage-bg);color:var(--g2);border:1px solid var(--bmd);
+  transition:all 0.15s;
+}
+.ai-map-action:hover{background:var(--g1);color:var(--sage);}
+.map-highlight-pulse{
+  animation:mapHighAnim 2s ease-out forwards;
+}
+@keyframes mapHighAnim{
+  0%{opacity:0.9;stroke-width:4;}
+  50%{opacity:0.6;stroke-width:6;}
+  100%{opacity:0.3;stroke-width:2;}
+}
+/* Notification bar when map responds to AI */
+#ai-map-notif{
+  position:absolute;top:56px;left:50%;transform:translateX(-50%);
+  z-index:801;background:var(--g1);color:var(--sage);
+  border-radius:8px;padding:6px 16px;font-size:11px;font-weight:700;
+  box-shadow:0 4px 16px rgba(27,58,45,0.3);display:none;white-space:nowrap;
+  animation:slideDown 0.3s ease;
+}
+@keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- ══ TOP BAR ══ -->
+<div id="topbar">
+  <div class="logo-box">
+    <!-- شعار وزارة البيئة والمياه والزراعة -->
+    <div class="logo-badge" style="width:52px;height:52px;background:transparent;border:none;padding:0;">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="52" height="52">
+        <!-- الدائرة الخارجية -->
+        <circle cx="50" cy="50" r="48" fill="#1B3A2D" stroke="#C2D69B" stroke-width="2"/>
+        <!-- نخلة مركزية -->
+        <rect x="47" y="52" width="6" height="22" rx="2" fill="#C2D69B"/>
+        <!-- سعف النخلة -->
+        <path d="M50 50 Q38 38 28 42" stroke="#C2D69B" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M50 50 Q40 32 44 22" stroke="#C2D69B" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M50 50 Q52 30 58 22" stroke="#C2D69B" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M50 50 Q62 36 72 40" stroke="#C2D69B" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M50 50 Q62 46 74 48" stroke="#C2D69B" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M50 50 Q38 46 26 48" stroke="#C2D69B" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- قطرات مياه -->
+        <ellipse cx="32" cy="68" rx="4" ry="5.5" fill="#C2D69B" opacity="0.85"/>
+        <ellipse cx="68" cy="68" rx="4" ry="5.5" fill="#C2D69B" opacity="0.85"/>
+        <!-- النص العربي الدائري -->
+        <path id="topArc" d="M 15,50 A 35,35 0 0,1 85,50" fill="none"/>
+        <text font-size="7.5" fill="#C2D69B" font-family="Cairo,sans-serif" font-weight="700" letter-spacing="0.5">
+          <textPath href="#topArc" startOffset="8%">وزارة البيئة والمياه والزراعة</textPath>
+        </text>
+        <!-- نقطة وسط -->
+        <circle cx="50" cy="74" r="2" fill="#C2D69B" opacity="0.6"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-txt">EWIS 2.0 — الاستشعار الذكي المتطور</div>
+      <div class="logo-sub">وزارة البيئة والمياه والزراعة · المركز الوطني للوقاية</div>
+    </div>
+  </div>
+
+  <div class="nri-box" id="nri-box" style="margin-right:8px;">
+    <div>
+      <div class="nri-label">مؤشر الخطر الوطني</div>
+      <div style="display:flex;align-items:baseline;gap:6px;">
+        <div class="nri-score" id="nri-val" style="color:#E67E22;">72</div>
+        <div class="nri-trend" style="color:var(--red);">▲ +4</div>
+      </div>
+    </div>
+    <canvas id="nri-mini" width="60" height="36" style="opacity:0.85"></canvas>
+  </div>
+
+  <div class="tb-stats" id="tb-stats">
+    <div class="stat-pill sp-red"><div class="sv" id="st-crit">19</div><div class="sl">عالي الخطر</div></div>
+    <div class="stat-pill sp-amb"><div class="sv" id="st-warn">40</div><div class="sl">خطر متوسط</div></div>
+    <div class="stat-pill sp-grn"><div class="sv" id="st-low">7</div><div class="sl">خطر منخفض</div></div>
+    <div class="stat-pill sp-blu"><div class="sv" id="st-total">66</div><div class="sl">إجمالي البؤر</div></div>
+  </div>
+
+  <div class="tb-right">
+    <div class="pulse-badge"><div class="dot r"></div>3 تنبيه حرج</div>
+    <div class="pulse-badge"><div class="dot g"></div>مباشر</div>
+    <button class="tb-nav-btn primary" onclick="openReport()">📋 مركز التقارير</button>
+    <button class="tb-nav-btn ghost" onclick="openPrediction()">🔮 الذكاء التنبؤي</button>
+    <button class="tb-nav-btn ghost" onclick="openSMS()">📡 بث SMS</button>
+    <div id="tb-clock">--:--:--</div>
+    <button class="tb-nav-btn ghost" id="api-key-btn" onclick="openApiKey()" title="إعداد مفتاح API">⚙ API</button>
+  </div>
+</div>
+
+<!-- ══ API KEY MODAL ══ -->
+<div class="overlay" id="apikey-overlay">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-head">
+      <div class="modal-title">⚙ إعداد المساعد الذكي</div>
+      <button class="modal-close" onclick="closeModal('apikey-overlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--sage-bg);border:1px solid var(--bmd);border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--tb);line-height:1.7;">
+        لتشغيل المساعد الذكي خارج بيئة claude.ai، أدخل مفتاح Anthropic API الخاص بك.<br/>
+        المفتاح يُحفظ في الذاكرة فقط ولا يُرسل لأي خادم خارجي.
+      </div>
+      <div style="margin-bottom:10px;">
+        <div class="slbl" style="margin-bottom:6px;">Anthropic API Key</div>
+        <input id="api-key-input" type="password"
+          style="width:100%;padding:9px 12px;border:1.5px solid var(--blt);border-radius:8px;
+                 font-family:monospace;font-size:12px;color:var(--td);background:var(--bg);
+                 outline:none;direction:ltr;"
+          placeholder="sk-ant-api03-..."/>
+      </div>
+      <div style="font-size:11px;color:var(--tm);">
+        احصل على مفتاحك من <span style="color:var(--g3);font-weight:700;">console.anthropic.com</span>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="closeModal('apikey-overlay')">إلغاء</button>
+      <button class="btn-primary" onclick="saveApiKey()">💾 حفظ وتفعيل</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN SHELL ══ -->
+<div id="shell">
+
+  <!-- LEFT PANEL -->
+  <div id="lp">
+    <div class="lp-tabs">
+      <div class="lp-tab active" data-t="0">🦠 الأمراض</div>
+      <div class="lp-tab" data-t="1">🏡 المزارع</div>
+      <div class="lp-tab" data-t="2">📊 الاتجاهات</div>
+    </div>
+
+    <!-- TAB 0: Disease filter -->
+    <div class="lp-pane active" id="lpt-0">
+      <div class="slbl">تصفية حسب المرض</div>
+      <div class="dis-grid" id="dis-grid"></div>
+      <div class="slbl" style="margin-top:4px;">طبقات الخريطة</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;" id="layer-grid"></div>
+      <div class="slbl" style="margin-top:4px;">خريطة الكثافة</div>
+      <canvas id="density-chart" height="100"></canvas>
+    </div>
+
+    <!-- TAB 1: Farm risk -->
+    <div class="lp-pane" id="lpt-1">
+      <div class="slbl">أعلى المزارع خطورةً</div>
+      <div id="farm-list"></div>
+    </div>
+
+    <!-- TAB 2: Trends -->
+    <div class="lp-pane" id="lpt-2">
+      <div class="slbl">اتجاه البؤر — آخر 12 أسبوع</div>
+      <div id="trend-canvas-wrap"><canvas id="trend-chart" height="120"></canvas></div>
+      <div class="slbl" style="margin-top:4px;">توزيع حسب المنطقة</div>
+      <canvas id="region-chart" height="130"></canvas>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div id="map-wrap">
+    <div id="map"></div>
+
+    <!-- Disease filter on map top -->
+    <div id="map-dis-filter">
+      <div class="mdf-btn active" data-d="all">الكل</div>
+      <div class="mdf-btn" data-d="FMD" style="color:#C0392B;">حمى قلاعية</div>
+      <div class="mdf-btn" data-d="BRU" style="color:#D4860A;">بروسيلا</div>
+      <div class="mdf-btn" data-d="PPR" style="color:#1A6B99;">الطاعون</div>
+      <div class="mdf-btn" data-d="LSD" style="color:#6B3FA0;">الجلد العقدي</div>
+      <div class="mdf-btn" data-d="NCD" style="color:#2A8A4A;">نيوكاسل</div>
+    </div>
+
+    <!-- Top-right overlay -->
+    <div class="map-panel" id="mp-tl">
+      <div style="font-size:9px;font-weight:700;color:var(--g3);letter-spacing:0.1em;margin-bottom:6px;">حالة النظام</div>
+      <div class="mpt-row"><span class="mpt-lbl">بؤر نشطة</span><span class="mpt-val" id="mp-active">66</span></div>
+      <div class="mpt-row"><span class="mpt-lbl">منطقة أعلى خطر</span><span class="mpt-val" id="mp-top">الأحساء</span></div>
+      <div class="mpt-row"><span class="mpt-lbl">آخر بؤرة</span><span class="mpt-val" id="mp-last">منذ 14 دق</span></div>
+      <div class="mpt-row"><span class="mpt-lbl">مزارع تحت المراقبة</span><span class="mpt-val" id="mp-farms">340</span></div>
+    </div>
+
+    <!-- Legend -->
+    <div class="map-panel" id="mp-legend">
+      <div class="leg-title">مستوى خطورة البؤرة</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#C0392B;"></div>حرج (90+)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#E67E22;"></div>عالٍ (70–89)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#F1C40F;"></div>متوسط (50–69)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#27AE60;"></div>منخفض (< 50)</div>
+      <div class="leg-item" style="margin-top:6px;border-top:1px solid var(--blt);padding-top:6px;">
+        <div class="leg-dot" style="background:rgba(107,63,160,0.4);border-color:transparent;border-radius:2px;width:18px;height:8px;"></div>توقع الانتشار (7 أيام)
+      </div>
+    </div>
+
+    <!-- Polygon risk zones toggle -->
+    <div class="poly-toggle-btn" id="poly-btn" onclick="togglePolygons()">
+      🗺 مناطق الخطر
+    </div>
+
+    <!-- Region info panel (appears on polygon click) -->
+    <div class="region-info-panel" id="region-info-panel"></div>
+
+    <!-- AI map notification -->
+    <div id="ai-map-notif"></div>
+
+    <!-- Time slider toggle -->
+    <div id="time-toggle-btn" onclick="toggleTimeSlider()">
+      ⏱ محاكاة الانتشار
+    </div>
+
+    <!-- Time slider bar -->
+    <div id="time-slider-bar">
+      <div class="tsb-head">
+        <div>
+          <div class="tsb-title">محاكاة انتشار المرض</div>
+          <div class="tsb-nri">مؤشر الخطر: <span id="tsb-nri-val">72</span> | بؤر متوقعة: <span id="tsb-bou-val">66</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="tsb-day" id="tsb-day-lbl">يوم 0</div>
+          <div class="tsb-close" onclick="toggleTimeSlider()">✕</div>
+        </div>
+      </div>
+      <div class="tsb-controls">
+        <button id="time-play-btn" onclick="togglePlay()">▶</button>
+        <input type="range" id="time-slider" min="0" max="30" value="0" oninput="onSliderChange(this.value)"/>
+        <span style="font-size:10px;color:var(--tm);white-space:nowrap;">30 يوم</span>
+      </div>
+    </div>
+
+    <!-- Spread prediction button -->
+    <div id="predict-btn" onclick="togglePrediction()">
+      <span id="pred-icon">🔮</span> <span id="pred-txt">توقع الانتشار</span>
+    </div>
+
+    <!-- Prediction info panel -->
+    <div class="pred-info" id="pred-info">
+      <div class="pred-title">توقع الانتشار — 7 أيام</div>
+      <div class="pred-row"><div class="pred-dot" style="background:#C0392B;opacity:0.3;"></div>نطاق محتمل (اتجاه الرياح)</div>
+      <div class="pred-row"><div class="pred-dot" style="background:#E67E22;opacity:0.3;"></div>منطقة تحذير</div>
+      <div class="pred-row"><div class="pred-dot" style="background:#F1C40F;opacity:0.3;"></div>منطقة رصد</div>
+      <div style="font-size:9px;color:var(--tm);margin-top:5px;">مبني على: اتجاه الرياح + كثافة الثروة + طريقة الانتقال</div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div id="rp">
+    <div class="rp-tabs">
+      <div class="rp-tab" data-t="0">🤖 المساعد الذكي</div>
+      <div class="rp-tab active" data-t="1">🚨 التنبيهات</div>
+    </div>
+
+    <!-- AI Chat -->
+    <div class="rp-pane" id="rpt-0">
+      <div id="chat-msgs"></div>
+      <div class="quick-qs" id="quick-qs">
+        <div class="qq-btn" data-q="ما أخطر منطقة الآن وما السبب؟ اذكر المنطقة بالاسم.">📍 أخطر منطقة الآن</div>
+        <div class="qq-btn" data-q="كم بؤرة حمى قلاعية في الأحساء والقصيم هذا الشهر؟">🦠 الحمى القلاعية</div>
+        <div class="qq-btn" data-q="ما المزارع الأعلى خطورة وما التوصية الميدانية العاجلة؟">🏡 أعلى المزارع خطراً</div>
+        <div class="qq-btn" data-q="ما توقع انتشار الأمراض في الأحساء خلال الـ7 أيام القادمة؟">🔮 توقع 7 أيام</div>
+      </div>
+      <div class="chat-input-row">
+        <input id="chat-input" type="text" placeholder="اسأل عن أي بيانات في النظام..."/>
+        <button id="chat-send" onclick="sendChat()">➤</button>
+      </div>
+    </div>
+
+    <!-- Alerts — active by default -->
+    <div class="rp-pane active" id="rpt-1">
+      <div id="alerts-feed"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div id="bottombar">
+  <div id="bb-prog"></div>
+  <div class="bb-items">
+    <div class="bb-it">المصدر: <span class="bb-v">MEWA-GIS / المختبرات الوطنية / FAO EMPRES</span></div>
+    <div class="bb-it">الموسم: <span class="bb-v">شتاء 2024–25</span></div>
+    <div class="bb-it">الدقة: <span class="bb-v">1كم × 1كم</span></div>
+    <div class="bb-it">المزامنة: <span class="bb-v" id="bb-sync">--</span></div>
+    <div class="bb-it">نموذج الانتشار: <span class="bb-v">SIR مُعدَّل v2.1</span></div>
+  </div>
+</div>
+
+<!-- ══ REPORT CENTER MODAL ══ -->
+<div class="overlay" id="report-overlay">
+  <div class="modal" style="max-width:740px;">
+    <div class="modal-head">
+      <div class="modal-title">📋 مركز التقارير الذكية التلقائية</div>
+      <button class="modal-close" onclick="closeModal('report-overlay')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- نوع التقرير -->
+      <div class="rep-type-tabs" id="rep-type-tabs">
+        <button class="rep-tab-btn active" data-rep="daily">📅 الموقفي اليومي</button>
+        <button class="rep-tab-btn" data-rep="weekly">📊 الأسبوعي التنفيذي</button>
+        <button class="rep-tab-btn" data-rep="outbreak">🦠 تقرير البؤرة</button>
+        <button class="rep-tab-btn" data-rep="regional">🗺 الإقليمي المقارن</button>
+        <button class="rep-tab-btn" data-rep="schedule">⏰ الجدول التلقائي</button>
+      </div>
+
+      <!-- ① يومي -->
+      <div class="rep-pane active" id="rep-daily">
+        <div class="rep-letterhead">
+          <div class="rep-lh-title">وزارة البيئة والمياه والزراعة</div>
+          <div class="rep-lh-sub">المركز الوطني للوقاية من الآفات والأمراض الحيوانية والنباتية</div>
+          <div class="rep-lh-date" id="rep-daily-date">--</div>
+        </div>
+        <div class="rs-kpi-grid">
+          <div class="rs-kpi red"><div class="rs-kpi-v">66</div><div class="rs-kpi-l">إجمالي البؤر</div></div>
+          <div class="rs-kpi red"><div class="rs-kpi-v">19</div><div class="rs-kpi-l">بؤر حرجة</div></div>
+          <div class="rs-kpi amb"><div class="rs-kpi-v">72</div><div class="rs-kpi-l">مؤشر الخطر NRI</div></div>
+          <div class="rs-kpi amb"><div class="rs-kpi-v">40</div><div class="rs-kpi-l">خطر متوسط</div></div>
+          <div class="rs-kpi"><div class="rs-kpi-v">340</div><div class="rs-kpi-l">مزارع مراقبة</div></div>
+          <div class="rs-kpi blu"><div class="rs-kpi-v">127</div><div class="rs-kpi-l">مزارع بلا تحصين</div></div>
+        </div>
+        <div class="report-section">
+          <div class="rs-title">أعلى البؤر خطورةً — اليوم</div>
+          <table class="rs-table" id="daily-top-table"></table>
+        </div>
+        <div class="ai-gen-badge">⚡ التحليل والتوصيات — مُولَّد بالذكاء الاصطناعي</div>
+        <button class="rep-gen-btn" id="daily-gen-btn" onclick="generateReport('daily')">
+          <div class="rep-spin" id="daily-spin"></div>
+          <span id="daily-gen-txt">⚡ توليد التحليل الذكي الآن</span>
+        </button>
+        <div class="rep-out" id="daily-out"></div>
+      </div>
+
+      <!-- ② أسبوعي -->
+      <div class="rep-pane" id="rep-weekly">
+        <div class="rep-letterhead">
+          <div class="rep-lh-title">النشرة الأسبوعية التنفيذية</div>
+          <div class="rep-lh-sub">ملخص اتجاهات الأمراض الحيوانية والنباتية</div>
+          <div class="rep-lh-date">الأسبوع 3 — يناير 2025</div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <div class="rs-title">اتجاه المؤشر الوطني — آخر 4 أسابيع</div>
+          <canvas id="weekly-trend-chart" height="90"></canvas>
+        </div>
+        <div class="report-section">
+          <div class="rs-title">التغيرات الأسبوعية حسب المنطقة</div>
+          <table class="rs-table" id="weekly-region-table"></table>
+        </div>
+        <div class="ai-gen-badge">⚡ التحليل الأسبوعي — مُولَّد بالذكاء الاصطناعي</div>
+        <button class="rep-gen-btn" onclick="generateReport('weekly')">
+          <div class="rep-spin" id="weekly-spin"></div>
+          <span id="weekly-gen-txt">⚡ توليد النشرة الأسبوعية</span>
+        </button>
+        <div class="rep-out" id="weekly-out"></div>
+      </div>
+
+      <!-- ③ بؤرة -->
+      <div class="rep-pane" id="rep-outbreak">
+        <div class="rep-letterhead">
+          <div class="rep-lh-title">تقرير البؤرة التفصيلي</div>
+          <div class="rep-lh-sub">تحليل فوري عند اكتشاف بؤرة جديدة</div>
+        </div>
+        <div class="sir-ctrl-group" style="margin-bottom:12px;">
+          <span>اختر البؤرة:</span>
+          <select class="sir-select" id="outbreak-select" style="min-width:220px;"></select>
+        </div>
+        <div id="outbreak-detail-box" style="background:var(--bg);border:1px solid var(--blt);border-radius:8px;padding:11px;margin-bottom:10px;font-size:11px;color:var(--tb);line-height:1.8;"></div>
+        <div class="ai-gen-badge">⚡ تقرير البؤرة — مُولَّد بالذكاء الاصطناعي</div>
+        <button class="rep-gen-btn" onclick="generateReport('outbreak')">
+          <div class="rep-spin" id="outbreak-spin"></div>
+          <span id="outbreak-gen-txt">⚡ توليد تقرير البؤرة</span>
+        </button>
+        <div class="rep-out" id="outbreak-out"></div>
+      </div>
+
+      <!-- ④ إقليمي -->
+      <div class="rep-pane" id="rep-regional">
+        <div class="rep-letterhead">
+          <div class="rep-lh-title">التقرير الإقليمي المقارن</div>
+          <div class="rep-lh-sub">مقارنة المناطق ومستويات الخطر</div>
+        </div>
+        <div class="report-section">
+          <div class="rs-title">ترتيب المناطق حسب الخطر</div>
+          <table class="rs-table" id="regional-table"></table>
+        </div>
+        <div style="margin-bottom:12px;">
+          <div class="rs-title">توزيع الأمراض بالمناطق</div>
+          <canvas id="regional-chart" height="100"></canvas>
+        </div>
+        <div class="ai-gen-badge">⚡ التحليل الإقليمي — مُولَّد بالذكاء الاصطناعي</div>
+        <button class="rep-gen-btn" onclick="generateReport('regional')">
+          <div class="rep-spin" id="regional-spin"></div>
+          <span id="regional-gen-txt">⚡ توليد التقرير الإقليمي</span>
+        </button>
+        <div class="rep-out" id="regional-out"></div>
+      </div>
+
+      <!-- ⑤ الجدول التلقائي -->
+      <div class="rep-pane" id="rep-schedule">
+        <div class="rs-title">📅 جدول التقارير التلقائية</div>
+        <div id="sched-list"></div>
+        <div style="margin-top:14px;padding:12px;background:var(--sage-bg);border:1px solid var(--bmd);border-radius:8px;">
+          <div style="font-size:11px;font-weight:700;color:var(--g2);margin-bottom:8px;">➕ إضافة تقرير مجدوَل</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+            <div>
+              <div style="font-size:10px;color:var(--tm);margin-bottom:4px;">نوع التقرير</div>
+              <select class="sir-select" id="new-rep-type" style="width:100%;">
+                <option>الموقفي اليومي</option>
+                <option>الأسبوعي التنفيذي</option>
+                <option>الإقليمي المقارن</option>
+              </select>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--tm);margin-bottom:4px;">التكرار</div>
+              <select class="sir-select" id="new-rep-freq" style="width:100%;">
+                <option>يومي — 07:00</option>
+                <option>يومي — 18:00</option>
+                <option>أسبوعي — الأحد</option>
+                <option>عند الطوارئ</option>
+              </select>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--tm);margin-bottom:4px;">الإرسال</div>
+              <select class="sir-select" id="new-rep-dest" style="width:100%;">
+                <option>القيادة العليا</option>
+                <option>مدراء المناطق</option>
+                <option>الفرق الميدانية</option>
+              </select>
+            </div>
+          </div>
+          <button class="rep-gen-btn" style="margin-top:10px;" onclick="addSchedule()">
+            <span>➕ إضافة للجدول</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="closeModal('report-overlay')">إغلاق</button>
+      <button class="btn-primary" onclick="printReport()">🖨 طباعة / PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PREDICTIVE INTELLIGENCE MODAL ══ -->
+<div class="overlay" id="pred-overlay">
+  <div class="modal" style="max-width:760px;">
+    <div class="modal-head">
+      <div class="modal-title">🔮 منظومة الذكاء التنبؤي — نموذج SIR المُعدَّل</div>
+      <button class="modal-close" onclick="closeModal('pred-overlay')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="pred-modal-tabs" id="pred-modal-tabs">
+        <div class="pred-modal-tab active" data-pt="0">📈 نموذج الانتشار</div>
+        <div class="pred-modal-tab" data-pt="1">🗺 خريطة الاحتمالية</div>
+        <div class="pred-modal-tab" data-pt="2">🏘 خطر المزارع</div>
+        <div class="pred-modal-tab" data-pt="3">🔬 سيناريوهات</div>
+      </div>
+
+      <!-- ① نموذج الانتشار SIR -->
+      <div class="pred-pane active" id="pred-p0">
+        <div class="sir-controls">
+          <div class="sir-ctrl-group">
+            <span>المرض:</span>
+            <select class="sir-select" id="sir-disease" onchange="runSIR()">
+              <option value="FMD">حمى قلاعية</option>
+              <option value="BRU">بروسيلا</option>
+              <option value="PPR">طاعون الغنم</option>
+              <option value="LSD">جلد عقدي</option>
+              <option value="NCD">نيوكاسل</option>
+            </select>
+          </div>
+          <div class="sir-ctrl-group">
+            <span>المنطقة:</span>
+            <select class="sir-select" id="sir-region" onchange="runSIR()">
+              <option>الأحساء</option><option>القصيم</option><option>الرياض</option>
+              <option>جازان</option><option>حائل</option><option>نجران</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button class="sir-days-btn active" data-d="7" onclick="setSIRDays(7,this)">7 أيام</button>
+            <button class="sir-days-btn" data-d="14" onclick="setSIRDays(14,this)">14 يوم</button>
+            <button class="sir-days-btn" data-d="30" onclick="setSIRDays(30,this)">30 يوم</button>
+          </div>
+        </div>
+        <div id="sir-chart-wrap"><canvas id="sir-chart" height="160"></canvas></div>
+        <div class="sir-legend">
+          <div class="sir-leg-item"><div class="sir-leg-dot" style="background:#1A6B99;"></div>قابلة للإصابة (S)</div>
+          <div class="sir-leg-item"><div class="sir-leg-dot" style="background:#E67E22;"></div>مُصابة (I)</div>
+          <div class="sir-leg-item"><div class="sir-leg-dot" style="background:#27AE60;"></div>تعافت (R)</div>
+          <div class="sir-leg-item"><div class="sir-leg-dot" style="background:#C0392B;"></div>نافقة (D)</div>
+        </div>
+        <div id="sir-summary" style="margin-top:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--blt);border-radius:8px;font-size:11px;color:var(--tb);line-height:1.7;"></div>
+      </div>
+
+      <!-- ② خريطة الاحتمالية -->
+      <div class="pred-pane" id="pred-p1">
+        <div style="margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <span style="font-size:11px;color:var(--tb);font-weight:600;">أفق التوقع:</span>
+          <button class="sir-days-btn active" data-ph="7" onclick="setProbHorizon(7,this)">7 أيام</button>
+          <button class="sir-days-btn" data-ph="14" onclick="setProbHorizon(14,this)">14 يوم</button>
+          <button class="sir-days-btn" data-ph="30" onclick="setProbHorizon(30,this)">30 يوم</button>
+          <button class="rep-gen-btn" style="width:auto;padding:5px 12px;margin:0;" onclick="applyProbToMap()">
+            <span>عرض على الخريطة الرئيسية</span>
+          </button>
+        </div>
+        <div class="rs-title">احتمالية الانتشار لكل منطقة</div>
+        <table class="prob-table" id="prob-table"></table>
+      </div>
+
+      <!-- ③ خطر المزارع -->
+      <div class="pred-pane" id="pred-p2">
+        <div class="rs-title">توقع درجة خطر المزارع — 7 أيام</div>
+        <div style="margin-bottom:10px;font-size:11px;color:var(--tm);">
+          الحساب يعتمد: المسافة من البؤرة × نوع الحيوان × حالة التحصين × اتجاه الرياح × معدل الانتشار
+        </div>
+        <table class="prob-table" id="farm-pred-table"></table>
+        <div id="farm-pred-ai-wrap" style="margin-top:12px;">
+          <div class="ai-gen-badge">⚡ توصيات ميدانية — مُولَّدة بالذكاء الاصطناعي</div>
+          <button class="rep-gen-btn" onclick="generateFarmPredAI()">
+            <div class="rep-spin" id="farm-pred-spin"></div>
+            <span id="farm-pred-txt">⚡ تحليل خطر المزارع ذكياً</span>
+          </button>
+          <div class="rep-out" id="farm-pred-out"></div>
+        </div>
+      </div>
+
+      <!-- ④ سيناريوهات -->
+      <div class="pred-pane" id="pred-p3">
+        <div class="rs-title">سيناريوهات التدخل — ماذا لو؟</div>
+        <div style="font-size:11px;color:var(--tm);margin-bottom:12px;">اختر سيناريو لرؤية تأثيره المتوقع على انتشار المرض</div>
+        <div id="scenarios-list"></div>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="closeModal('pred-overlay')">إغلاق</button>
+      <button class="btn-primary" onclick="applyProbToMap()">🗺 تطبيق على الخريطة</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SMS MODAL ══ -->
+<div class="overlay" id="sms-overlay">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-head">
+      <div class="modal-title">📡 بث رسالة SMS</div>
+      <button class="modal-close" onclick="closeModal('sms-overlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="sms-pane">
+        <div>
+          <div class="slbl" style="margin-bottom:6px;">اختر المستلمين</div>
+          <div class="recip-wrap" id="recip-wrap"></div>
+        </div>
+        <div>
+          <div class="slbl" style="margin-bottom:6px;">نص الرسالة</div>
+          <textarea id="sms-ta" placeholder="اكتب نص التنبيه..." oninput="updChar()"></textarea>
+        </div>
+        <div class="sms-row">
+          <span id="sms-chr">0 / 160</span>
+          <button id="sms-snd" onclick="sendSMS()">📡 إرسال البث</button>
+        </div>
+        <div class="sms-sent" id="sms-sent">✓ تم الإرسال بنجاح</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FARM DETAIL MODAL ══ -->
+<div class="overlay" id="farm-overlay">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-head">
+      <div class="modal-title" id="farm-modal-title">تفاصيل المزرعة</div>
+      <button class="modal-close" onclick="closeModal('farm-overlay')">✕</button>
+    </div>
+    <div class="modal-body" id="farm-modal-body"></div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="closeModal('farm-overlay')">إغلاق</button>
+      <button class="btn-primary" onclick="farmAIAnalysis()">⚡ تحليل ذكي</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  DATA — Realistic KSA Outbreak Simulation
+// ══════════════════════════════════════════════════════════
+const DISEASES = {
+  FMD:{ar:'حمى قلاعية',  col:'#C0392B', ani:'أبقار/أغنام', spread:12, airborne:true},
+  BRU:{ar:'بروسيلا',     col:'#D4860A', ani:'أبقار/إبل',    spread:5,  airborne:false},
+  PPR:{ar:'طاعون الغنم', col:'#1A6B99', ani:'أغنام/ماعز',   spread:8,  airborne:true},
+  LSD:{ar:'جلد عقدي',    col:'#6B3FA0', ani:'أبقار',         spread:4,  airborne:false},
+  NCD:{ar:'نيوكاسل',     col:'#2A8A4A', ani:'دواجن',         spread:15, airborne:true}
+};
+
+const REGIONS = ['الرياض','الأحساء','القصيم','حائل','تبوك','المدينة المنورة','جازان','نجران','عسير','الباحة','الجوف','الحدود الشمالية'];
+
+// 66 simulated outbreaks
+const OUTBREAKS = [
+  // Ahsa cluster - highest risk
+  {id:'F001',lat:25.38,lng:49.58,dis:'FMD',risk:97,reg:'الأحساء',farm:'مزرعة آل المطيري',heads:340,rep:'113920',date:'2024-01-15',samples:27},
+  {id:'F002',lat:25.45,lng:49.72,dis:'FMD',risk:91,reg:'الأحساء',farm:'مزرعة الوادي الذهبي',heads:180,rep:'113945',date:'2024-01-16',samples:15},
+  {id:'F003',lat:25.31,lng:49.65,dis:'BRU',risk:84,reg:'الأحساء',farm:'مزرعة النخيل',heads:420,rep:'113960',date:'2024-01-14',samples:32},
+  {id:'F004',lat:25.52,lng:49.80,dis:'LSD',risk:76,reg:'الأحساء',farm:'إسطبل الفارس',heads:95,rep:'113972',date:'2024-01-17',samples:8},
+  {id:'F005',lat:25.27,lng:49.50,dis:'PPR',risk:88,reg:'الأحساء',farm:'مزرعة الحدود الشرقية',heads:280,rep:'113985',date:'2024-01-13',samples:22},
+  // Qassim cluster
+  {id:'Q001',lat:26.33,lng:43.98,dis:'FMD',risk:88,reg:'القصيم',farm:'مزرعة الصحراء الخضراء',heads:510,rep:'114010',date:'2024-01-12',samples:41},
+  {id:'Q002',lat:26.18,lng:43.75,dis:'PPR',risk:79,reg:'القصيم',farm:'مزرعة التوفيق',heads:220,rep:'114025',date:'2024-01-13',samples:18},
+  {id:'Q003',lat:26.45,lng:44.15,dis:'BRU',risk:71,reg:'القصيم',farm:'مزرعة النور',heads:390,rep:'114038',date:'2024-01-11',samples:29},
+  {id:'Q004',lat:26.58,lng:43.65,dis:'FMD',risk:93,reg:'القصيم',farm:'مزرعة العزيزية',heads:680,rep:'114052',date:'2024-01-17',samples:55},
+  {id:'Q005',lat:26.10,lng:44.30,dis:'NCD',risk:65,reg:'القصيم',farm:'مزرعة الدواجن الحديثة',heads:12000,rep:'114066',date:'2024-01-10',samples:120},
+  // Riyadh
+  {id:'R001',lat:24.68,lng:46.72,dis:'BRU',risk:62,reg:'الرياض',farm:'مزرعة الأفق',heads:145,rep:'114080',date:'2024-01-09',samples:12},
+  {id:'R002',lat:24.85,lng:47.10,dis:'FMD',risk:78,reg:'الرياض',farm:'إسطبل الملوية',heads:88,rep:'114092',date:'2024-01-14',samples:7},
+  {id:'R003',lat:24.52,lng:46.45,dis:'LSD',risk:55,reg:'الرياض',farm:'مزرعة الواحة',heads:230,rep:'114105',date:'2024-01-08',samples:19},
+  {id:'R004',lat:25.01,lng:46.88,dis:'PPR',risk:82,reg:'الرياض',farm:'مزرعة الرياض النموذجية',heads:760,rep:'114118',date:'2024-01-16',samples:63},
+  // Hail
+  {id:'H001',lat:27.52,lng:41.70,dis:'FMD',risk:74,reg:'حائل',farm:'مزرعة السرو',heads:295,rep:'114130',date:'2024-01-07',samples:24},
+  {id:'H002',lat:27.38,lng:41.95,dis:'BRU',risk:68,reg:'حائل',farm:'إبل حائل الأصيلة',heads:180,rep:'114142',date:'2024-01-06',samples:15},
+  {id:'H003',lat:27.65,lng:41.55,dis:'PPR',risk:85,reg:'حائل',farm:'غنم الشمال الجبلية',heads:1100,rep:'114155',date:'2024-01-15',samples:90},
+  // Madinah
+  {id:'M001',lat:24.47,lng:39.61,dis:'FMD',risk:70,reg:'المدينة المنورة',farm:'مزرعة المدينة الكبرى',heads:410,rep:'114168',date:'2024-01-05',samples:34},
+  {id:'M002',lat:24.60,lng:39.80,dis:'NCD',risk:58,reg:'المدينة المنورة',farm:'مزرعة الدواجن الرائدة',heads:25000,rep:'114180',date:'2024-01-04',samples:200},
+  // Jazan
+  {id:'J001',lat:17.05,lng:42.82,dis:'FMD',risk:89,reg:'جازان',farm:'مزرعة الجبل الجنوبية',heads:320,rep:'114192',date:'2024-01-17',samples:26},
+  {id:'J002',lat:16.88,lng:42.65,dis:'PPR',risk:81,reg:'جازان',farm:'أغنام تهامة',heads:890,rep:'114205',date:'2024-01-16',samples:72},
+  {id:'J003',lat:17.25,lng:43.00,dis:'LSD',risk:67,reg:'جازان',farm:'مزرعة الوادي الأخضر',heads:175,rep:'114218',date:'2024-01-13',samples:14},
+  // Tabuk
+  {id:'T001',lat:28.38,lng:36.57,dis:'BRU',risk:72,reg:'تبوك',farm:'مزرعة الشمال الأولى',heads:260,rep:'114230',date:'2024-01-11',samples:21},
+  {id:'T002',lat:28.55,lng:36.82,dis:'FMD',risk:66,reg:'تبوك',farm:'إبل منطقة تبوك',heads:145,rep:'114242',date:'2024-01-09',samples:12},
+  // Najran
+  {id:'N001',lat:17.55,lng:44.22,dis:'PPR',risk:76,reg:'نجران',farm:'غنم نجران التقليدية',heads:1350,rep:'114254',date:'2024-01-14',samples:108},
+  {id:'N002',lat:17.42,lng:44.05,dis:'FMD',risk:84,reg:'نجران',farm:'مزرعة الحدود الجنوبية',heads:480,rep:'114267',date:'2024-01-15',samples:39},
+  // Asir
+  {id:'A001',lat:18.22,lng:42.50,dis:'FMD',risk:79,reg:'عسير',farm:'مزرعة الجبل الأخضر',heads:210,rep:'114279',date:'2024-01-12',samples:17},
+  {id:'A002',lat:18.45,lng:42.72,dis:'BRU',risk:61,reg:'عسير',farm:'مزرعة السروات',heads:340,rep:'114291',date:'2024-01-08',samples:28},
+  // Jouf
+  {id:'JF001',lat:29.78,lng:38.25,dis:'FMD',risk:73,reg:'الجوف',farm:'مزرعة السرحان الكبرى',heads:580,rep:'114303',date:'2024-01-10',samples:47},
+  {id:'JF002',lat:29.95,lng:38.50,dis:'LSD',risk:56,reg:'الجوف',farm:'مزرعة وادي السرحان',heads:190,rep:'114315',date:'2024-01-07',samples:16},
+  // Extra outbreaks to reach 66 total
+  ...[...Array(36)].map((_,i)=>{
+    const regions=[{lat:25.5,lng:49.9},{lat:26.0,lng:44.0},{lat:24.9,lng:46.5},{lat:27.3,lng:41.8},{lat:28.2,lng:36.7},{lat:24.3,lng:39.5},{lat:17.1,lng:42.9},{lat:17.6,lng:44.3},{lat:18.3,lng:42.6},{lat:29.8,lng:38.4}];
+    const r=regions[i%regions.length];
+    const dis=Object.keys(DISEASES)[i%5];
+    const reg=REGIONS[i%REGIONS.length];
+    return {
+      id:`X${String(i+1).padStart(3,'0')}`,
+      lat:r.lat+(Math.random()-0.5)*0.8,
+      lng:r.lng+(Math.random()-0.5)*0.8,
+      dis,risk:Math.floor(30+Math.random()*60),
+      reg,farm:`مزرعة ${['النجوم','الأمل','الريادة','السلام','الوفاء','التقدم','الإنجاز','المستقبل'][i%8]}`,
+      heads:Math.floor(50+Math.random()*800),
+      rep:`1150${String(i+20).padStart(2,'0')}`,
+      date:`2024-01-${String(Math.floor(1+Math.random()*17)).padStart(2,'0')}`,
+      samples:Math.floor(5+Math.random()*50)
+    };
+  })
+];
+
+// Farms with risk scores (derived from outbreaks proximity)
+const FARMS = [
+  {name:'مزرعة آل المطيري الكبرى',reg:'الأحساء',score:97,dis:'FMD',dist:0.8,heads:340,vac:'غير محصّن'},
+  {name:'مزرعة العزيزية — القصيم',reg:'القصيم',score:93,dis:'FMD',dist:1.2,heads:680,vac:'جزئي'},
+  {name:'مزرعة الحدود الشرقية',reg:'الأحساء',score:88,dis:'PPR',dist:2.1,heads:280,vac:'غير محصّن'},
+  {name:'مزرعة الجبل الجنوبية',reg:'جازان',score:89,dis:'FMD',dist:0.5,heads:320,vac:'غير محصّن'},
+  {name:'غنم حائل الجبلية',reg:'حائل',score:85,dis:'PPR',dist:1.8,heads:1100,vac:'منتهي الصلاحية'},
+  {name:'مزرعة الرياض النموذجية',reg:'الرياض',score:82,dis:'PPR',dist:3.2,heads:760,vac:'جزئي'},
+  {name:'أغنام تهامة — جازان',reg:'جازان',score:81,dis:'PPR',dist:2.5,heads:890,vac:'غير محصّن'},
+  {name:'مزرعة الصحراء الخضراء',reg:'القصيم',score:79,dis:'FMD',dist:1.5,heads:510,vac:'جزئي'},
+  {name:'مزرعة الجبل الأخضر',reg:'عسير',score:79,dis:'FMD',dist:3.8,heads:210,vac:'محصّن'},
+  {name:'غنم نجران التقليدية',reg:'نجران',score:76,dis:'PPR',dist:4.1,heads:1350,vac:'جزئي'},
+  {name:'مزرعة الحدود الجنوبية',reg:'نجران',score:84,dis:'FMD',dist:2.2,heads:480,vac:'غير محصّن'},
+  {name:'مزرعة السرحان الكبرى',reg:'الجوف',score:73,dis:'FMD',dist:5.5,heads:580,vac:'محصّن'},
+];
+
+// Alerts data
+const ALERTS = [
+  {t:'critical',ti:'بؤرة جديدة — حمى قلاعية حرجة',b:'رُصدت بؤرة نشطة جديدة في مزرعة بالأحساء. 97 رأس مصاب من 340. تشمل نطاق 5كم 4 مزارع مجاورة بإجمالي 1,200 رأس. تفعيل بروتوكول العزل فوراً.',r:'الأحساء',time:'14 دق',sms:true},
+  {t:'critical',ti:'بؤرة نشطة — القصيم: 680 رأس',b:'تأكيد إصابة حمى قلاعية بمزرعة العزيزية. النوع الجيني O/ME-SA/Ind-2001d. خطر انتشار عبر شبكة نقل الحيوانات المرتبطة بـ 8 مزارع.',r:'القصيم',time:'32 دق',sms:true},
+  {t:'critical',ti:'مؤشر الخطر الوطني ارتفع 4 نقاط',b:'NRI انتقل من 68 إلى 72 خلال 24 ساعة. السبب الرئيسي: تكتل بؤر الأحساء + اكتشاف طاعون الغنم في حائل. مطلوب مراجعة عاجلة.',r:'وطني',time:'1 سا',sms:true},
+  {t:'warning',ti:'توقع انتشار — نطاق الرياح',b:'نمذجة الانتشار: احتمال 68% انتقال بؤرة الأحساء F001 لمزرعتين شمالاً خلال 7 أيام. اتجاه الرياح الشمالي الغربي 18كم/سا يرفع الخطر.',r:'الأحساء',time:'2 سا',sms:true},
+  {t:'warning',ti:'طاعون الغنم — حائل',b:'3 بؤر نشطة PPR في نطاق 12كم. حصاد المناعة القطيعية أقل من 40% في المنطقة. التطعيم الجماعي العاجل مطلوب لـ 15,000 رأس.',r:'حائل',time:'3 سا',sms:true},
+  {t:'warning',ti:'مزارع غير محصّنة في النطاق الحرج',b:'رُصد 127 مزرعة ضمن 10كم من بؤر نشطة دون تحصين فعّال. 38 مزرعة منها بتحصين منتهي الصلاحية. يُوصى بحملة طارئة.',r:'متعدد',time:'4 سا',sms:false},
+  {t:'info',ti:'تقرير توافل الحشرات الناقلة',b:'الأرصاد: اتجاه الرياح الجنوبي الغربي مع رطوبة 72% يرفع نشاط ذبابة الرمل الناقلة للجلد العقدي بنسبة 40% في جازان وعسير.',r:'جازان/عسير',time:'5 سا',sms:false},
+  {t:'info',ti:'بيانات FAO EMPRES',b:'تقرير FAO: ارتفاع بؤر حمى قلاعية في اليمن وسلطنة عمان بنسبة 35% الأسبوع الماضي. خطر الاستيراد عبر المنافذ الجنوبية مرتفع.',r:'إقليمي',time:'6 سا',sms:false},
+  {t:'good',ti:'نتائج حملة التطعيم — المدينة المنورة',b:'اكتملت حملة التطعيم الطارئة بتغطية 92% من المزارع المستهدفة (18,450 رأس). مؤشر الخطر في المنطقة انخفض من 71 إلى 52.',r:'المدينة',time:'8 سا',sms:false},
+  {t:'good',ti:'انحسار بؤرة تبوك',b:'بؤرة نيوكاسل T-NCD-003 أُعلن إخمادها بعد 21 يوم عزل. 0 حالة جديدة. الجهات المعنية أُبلغت.',r:'تبوك',time:'12 سا',sms:false},
+];
+
+// Trend data (12 weeks)
+const TREND_DATA = {
+  labels:['أ1','أ2','أ3','أ4','أ5','أ6','أ7','أ8','أ9','أ10','أ11','أ12'],
+  FMD:[8,10,9,11,13,12,15,14,16,18,17,19],
+  BRU:[5,4,6,5,7,6,8,7,9,8,10,9],
+  PPR:[3,4,3,5,4,6,5,7,6,8,7,8],
+  LSD:[2,1,2,3,2,3,2,4,3,5,4,5],
+  NCD:[4,3,5,4,6,5,7,6,8,7,9,8],
+};
+const REGION_DIST = {labels:['الأحساء','القصيم','الرياض','جازان','حائل','نجران','تبوك','عسير','أخرى'],data:[18,14,10,8,6,5,4,4,7]};
+const NRI_HISTORY = [58,61,63,60,65,68,66,70,67,72,70,72];
+
+// SMS Recipients
+const RECIPIENTS = ['وزير البيئة','وكيل الوزارة','المدير العام','بيطريو المناطق','فرق الطوارئ','إدارة الحدود'];
+
+// ══════════════════════════════════════════════════════════
+//  GLOBALS
+// ══════════════════════════════════════════════════════════
+let map, activeDisFilter='all', predictionOn=false;
+let outbreakLayers={}, predLayers=[];
+let chatHistory=[];
+let activeFarm=null;
+
+// ══════════════════════════════════════════════════════════
+//  MAP INIT
+// ══════════════════════════════════════════════════════════
+function initMap(){
+  map = L.map('map', {
+    center: [23.5, 44.5],
+    zoom: 6,
+    zoomControl: true,
+    attributionControl: false,
+    preferCanvas: true
+  });
+
+  // ESRI World Street Map — يعرض الأسماء العربية بشكل موثوق في منطقة الخليج
+  L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+    { maxZoom: 18, attribution: 'ESRI' }
+  ).addTo(map);
+
+  // إصلاح حجم الخريطة بعد رسم الـ DOM كاملاً
+  setTimeout(() => { map.invalidateSize(); }, 200);
+
+  renderOutbreaks('all');
+}
+
+function getRiskTier(risk){
+  if(risk>=90) return 'critical';
+  if(risk>=70) return 'high';
+  if(risk>=50) return 'medium';
+  return 'low';
+}
+
+function getRiskColor(risk){
+  if(risk>=90) return '#C0392B';
+  if(risk>=70) return '#E67E22';
+  if(risk>=50) return '#F1C40F';
+  return '#27AE60';
+}
+
+function makeMarkerHTML(o, col, r){
+  const tier  = getRiskTier(o.risk);
+  const speed = {critical:'0.9s', high:'1.5s', medium:'2.3s', low:'3.6s'}[tier];
+  const anim  = `pulse-${tier}`;
+
+  // الفضاء الإضافي لكل مستوى — يسمح للـ ripple بالتوسع بدون قص
+  const halo = {critical:22, high:16, medium:10, low:6}[tier];
+  const total = r * 2 + halo * 2;   // الحجم الكلي للـ icon
+  const off   = halo;               // إزاحة الدائرة الداخلية للمنتصف
+
+  // الحلقات الخارجية — حرج: حلقتان، عالي: حلقة واحدة
+  const rippleHtml = tier === 'critical' ? `
+    <div style="position:absolute;inset:${off-halo}px;border-radius:50%;
+      border:2.5px solid ${col};opacity:0.8;
+      animation:ripple-critical 1.1s ease-out infinite;pointer-events:none;"></div>
+    <div style="position:absolute;inset:${off-halo}px;border-radius:50%;
+      border:2px solid ${col};opacity:0.5;
+      animation:ripple-critical 1.1s ease-out 0.45s infinite;pointer-events:none;"></div>`
+  : tier === 'high' ? `
+    <div style="position:absolute;inset:${off-halo}px;border-radius:50%;
+      border:2px solid ${col};opacity:0.65;
+      animation:ripple-high 1.8s ease-out infinite;pointer-events:none;"></div>`
+  : '';
+
+  return `
+    <div style="position:relative;width:${total}px;height:${total}px;overflow:visible;">
+      ${rippleHtml}
+      <div style="
+        position:absolute;
+        top:${off}px;left:${off}px;
+        width:${r*2}px;height:${r*2}px;
+        background:${col};
+        border:${tier==='critical'?'3px':'2.5px'} solid white;
+        border-radius:50%;
+        display:flex;align-items:center;justify-content:center;
+        font-size:${r<=10?8:r<=14?10:11}px;
+        font-weight:900;color:white;
+        font-family:'Cairo',sans-serif;
+        cursor:pointer;
+        animation:${anim} ${speed} ease-in-out infinite;
+        will-change:transform,box-shadow;
+        box-shadow:0 2px 8px rgba(0,0,0,0.28);
+      ">${o.risk}</div>
+    </div>`;
+}
+
+function renderOutbreaks(disFilter){
+  Object.values(outbreakLayers).forEach(l=>{try{map.removeLayer(l);}catch(e){}});
+  outbreakLayers={};
+  const filtered = disFilter==='all' ? OUTBREAKS : OUTBREAKS.filter(o=>o.dis===disFilter);
+
+  filtered.forEach(o=>{
+    const col  = getRiskColor(o.risk);
+    const tier = getRiskTier(o.risk);
+    const dis  = DISEASES[o.dis];
+    const r    = o.risk>=90?17:o.risk>=70?14:o.risk>=50?11:8;
+    const halo = {critical:22, high:16, medium:10, low:6}[tier];
+    const total= r * 2 + halo * 2;
+
+    const icon = L.divIcon({
+      className:  '',
+      html:       makeMarkerHTML(o, col, r),
+      iconSize:   [total, total],
+      iconAnchor: [total/2, total/2]
+    });
+
+    const m = L.marker([o.lat, o.lng], {icon, zIndexOffset: o.risk * 10})
+      .bindTooltip(
+        `<b>${o.farm}</b><br/>${dis.ar} — خطر: <b style="color:${col}">${o.risk}%</b><br/>${o.heads.toLocaleString('ar-SA')} رأس | ${o.reg}`,
+        {direction:'top', offset:[0, -(r+halo)]}
+      )
+      .bindPopup(makePopup(o))
+      .addTo(map);
+
+    // دائرة نطاق الخطر
+    const circle = L.circle([o.lat, o.lng], {
+      radius:      dis.spread * 1000,
+      color:       col,
+      fillColor:   col,
+      fillOpacity: tier==='critical'?0.09:tier==='high'?0.06:0.04,
+      weight:      tier==='critical'?1.8:1.2,
+      dashArray:   tier==='critical'?'6,4':'4,8'
+    }).addTo(map);
+
+    outbreakLayers[o.id+'m'] = m;
+    outbreakLayers[o.id+'c'] = circle;
+  });
+}
+
+function makePopup(o){
+  const dis=DISEASES[o.dis];
+  const col=getRiskColor(o.risk);
+  return `<div class="lf-pp">
+    <h3>${o.farm}</h3>
+    <span class="pp-badge" style="background:${col}22;color:${col};border:1px solid ${col}44;">
+      خطر ${o.risk}% — ${dis.ar}
+    </span>
+    <div class="pp-row"><span>المنطقة</span><b>${o.reg}</b></div>
+    <div class="pp-row"><span>عدد الرؤوس</span><b>${o.heads.toLocaleString('ar-SA')}</b></div>
+    <div class="pp-row"><span>رقم البلاغ</span><b>${o.rep}</b></div>
+    <div class="pp-row"><span>تاريخ الرصد</span><b>${o.date}</b></div>
+    <div class="pp-row"><span>الحيوانات</span><b>${dis.ani}</b></div>
+    <div class="pp-row"><span>العينات</span><b>${o.samples} عينة</b></div>
+    <button class="pp-ai-btn" onclick="askAboutOutbreak('${o.id}')">⚡ تحليل ذكي للبؤرة</button>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+//  PREDICTION SPREAD LAYER
+// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+//  REPORT CENTER
+// ══════════════════════════════════════════════════════════
+const SCHED_DATA = [
+  {type:'الموقفي اليومي',   freq:'يومي 07:00',   dest:'القيادة العليا',   status:'sent',   last:'اليوم 07:00'},
+  {type:'الموقفي اليومي',   freq:'يومي 18:00',   dest:'مدراء المناطق',   status:'pending', last:'اليوم 18:00'},
+  {type:'الأسبوعي التنفيذي',freq:'الأحد 08:00',  dest:'وكيل الوزارة',   status:'sent',   last:'الأحد الماضي'},
+  {type:'إقليمي مقارن',     freq:'أسبوعي الاثنين',dest:'مدراء المناطق', status:'sched',  last:'الاثنين القادم'},
+  {type:'بؤرة طارئة',       freq:'عند الاكتشاف', dest:'جميع الجهات',    status:'sent',   last:'منذ 14 دقيقة'},
+];
+const WEEKLY_REGION = [
+  {reg:'الأحساء',    prev:14, curr:18, dis:'FMD', change:'+4'},
+  {reg:'القصيم',     prev:11, curr:14, dis:'FMD', change:'+3'},
+  {reg:'جازان',      prev:6,  curr:8,  dis:'PPR', change:'+2'},
+  {reg:'حائل',       prev:4,  curr:6,  dis:'PPR', change:'+2'},
+  {reg:'الرياض',     prev:9,  curr:10, dis:'BRU', change:'+1'},
+  {reg:'المدينة',    prev:5,  curr:5,  dis:'NCD', change:'±0'},
+  {reg:'تبوك',       prev:3,  curr:2,  dis:'BRU', change:'−1'},
+];
+const REGIONAL_RISKS = [
+  {reg:'الأحساء',  score:89, bou:18, crit:5, dis:'FMD/PPR'},
+  {reg:'القصيم',   score:84, bou:14, crit:4, dis:'FMD/BRU'},
+  {reg:'جازان',    score:79, bou:8,  crit:3, dis:'FMD/PPR'},
+  {reg:'نجران',    score:74, bou:7,  crit:2, dis:'PPR/FMD'},
+  {reg:'حائل',     score:71, bou:6,  crit:2, dis:'PPR/BRU'},
+  {reg:'الرياض',   score:65, bou:10, crit:1, dis:'BRU/PPR'},
+  {reg:'المدينة',  score:58, bou:5,  crit:1, dis:'NCD'},
+  {reg:'تبوك',     score:52, bou:4,  crit:0, dis:'BRU'},
+];
+
+function openReport(){
+  document.getElementById('report-overlay').classList.add('show');
+  const d = new Date();
+  document.getElementById('rep-daily-date').textContent =
+    'التقرير الموقفي — ' + d.toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  buildDailyTable();
+  buildWeeklySection();
+  buildOutbreakSelect();
+  buildRegionalTable();
+  buildSchedList();
+}
+
+function buildDailyTable(){
+  const top = [...OUTBREAKS].sort((a,b)=>b.risk-a.risk).slice(0,7);
+  const t = document.getElementById('daily-top-table');
+  t.innerHTML = `<tr><th>البلاغ</th><th>المزرعة</th><th>المنطقة</th><th>المرض</th><th>الخطر</th><th>الرؤوس</th></tr>
+  ${top.map(o=>`<tr>
+    <td>${o.rep}</td><td>${o.farm}</td><td>${o.reg}</td>
+    <td>${DISEASES[o.dis].ar}</td>
+    <td style="color:${getRiskColor(o.risk)};font-weight:900;">${o.risk}%</td>
+    <td>${o.heads.toLocaleString('ar-SA')}</td>
+  </tr>`).join('')}`;
+}
+
+function buildWeeklySection(){
+  const t = document.getElementById('weekly-region-table');
+  t.innerHTML = `<tr><th>المنطقة</th><th>الأسبوع السابق</th><th>الأسبوع الحالي</th><th>التغير</th><th>المرض الأبرز</th></tr>
+  ${WEEKLY_REGION.map(r=>`<tr>
+    <td>${r.reg}</td><td>${r.prev}</td><td>${r.curr}</td>
+    <td style="color:${r.change.startsWith('+')?'var(--red)':r.change.startsWith('−')?'var(--good)':'var(--tm)'};font-weight:900;">${r.change}</td>
+    <td>${DISEASES[r.dis]?.ar||r.dis}</td>
+  </tr>`).join('')}`;
+  // Mini weekly chart
+  const ctx = document.getElementById('weekly-trend-chart');
+  if(ctx._chart) ctx._chart.destroy();
+  ctx._chart = new Chart(ctx.getContext('2d'),{
+    type:'line',
+    data:{
+      labels:['الأسبوع 1','الأسبوع 2','الأسبوع 3','الأسبوع 4'],
+      datasets:[
+        {label:'NRI',data:[62,66,69,72],borderColor:'#E67E22',backgroundColor:'rgba(230,126,34,0.1)',tension:0.4,fill:true,borderWidth:2.5,pointRadius:4},
+        {label:'بؤر',data:[54,59,63,66],borderColor:'#C0392B',backgroundColor:'rgba(192,57,43,0.08)',tension:0.4,fill:false,borderWidth:2,pointRadius:3}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{font:{family:'Cairo',size:9},padding:8}}},
+      scales:{x:{ticks:{font:{family:'Cairo',size:9}}},y:{ticks:{font:{family:'Cairo',size:9}}}}}
+  });
+}
+
+function buildOutbreakSelect(){
+  const sel = document.getElementById('outbreak-select');
+  sel.innerHTML = [...OUTBREAKS].sort((a,b)=>b.risk-a.risk).slice(0,15)
+    .map(o=>`<option value="${o.id}">${o.farm} — ${o.reg} (${o.risk}%)</option>`).join('');
+  updateOutbreakDetail();
+  sel.onchange = updateOutbreakDetail;
+}
+
+function updateOutbreakDetail(){
+  const id = document.getElementById('outbreak-select').value;
+  const o = OUTBREAKS.find(x=>x.id===id);
+  if(!o) return;
+  const dis = DISEASES[o.dis];
+  const col = getRiskColor(o.risk);
+  document.getElementById('outbreak-detail-box').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
+      <div class="rs-kpi ${o.risk>=90?'red':o.risk>=70?'amb':''}"><div class="rs-kpi-v" style="color:${col};">${o.risk}%</div><div class="rs-kpi-l">درجة الخطر</div></div>
+      <div class="rs-kpi"><div class="rs-kpi-v">${o.heads.toLocaleString('ar-SA')}</div><div class="rs-kpi-l">الرؤوس</div></div>
+      <div class="rs-kpi"><div class="rs-kpi-v">${o.samples}</div><div class="rs-kpi-l">العينات</div></div>
+    </div>
+    <b>المزرعة:</b> ${o.farm} &nbsp;|&nbsp; <b>المنطقة:</b> ${o.reg}<br/>
+    <b>المرض:</b> ${dis.ar} &nbsp;|&nbsp; <b>الحيوانات:</b> ${dis.ani}<br/>
+    <b>رقم البلاغ:</b> ${o.rep} &nbsp;|&nbsp; <b>تاريخ الرصد:</b> ${o.date}<br/>
+    <b>الانتقال الجوي:</b> ${dis.airborne?'نعم — خطر انتشار واسع':'لا — تماس مباشر فقط'} &nbsp;|&nbsp; <b>نطاق الانتشار المعتاد:</b> ${dis.spread}كم`;
+}
+
+function buildRegionalTable(){
+  const t = document.getElementById('regional-table');
+  t.innerHTML = `<tr><th>#</th><th>المنطقة</th><th>مؤشر الخطر</th><th>البؤر</th><th>الحرجة</th><th>الأمراض السائدة</th></tr>
+  ${REGIONAL_RISKS.map((r,i)=>`<tr>
+    <td style="text-align:center;font-weight:900;">${i+1}</td>
+    <td>${r.reg}</td>
+    <td style="color:${r.score>=80?'var(--red)':r.score>=65?'var(--amber)':'var(--good)'};font-weight:900;">${r.score}</td>
+    <td>${r.bou}</td>
+    <td style="color:${r.crit>2?'var(--red)':r.crit>0?'var(--amber)':'var(--good)'};font-weight:700;">${r.crit}</td>
+    <td>${r.dis}</td>
+  </tr>`).join('')}`;
+  // Regional chart
+  const ctx = document.getElementById('regional-chart');
+  if(ctx._chart) ctx._chart.destroy();
+  ctx._chart = new Chart(ctx.getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:REGIONAL_RISKS.map(r=>r.reg),
+      datasets:[{
+        data:REGIONAL_RISKS.map(r=>r.score),
+        backgroundColor:REGIONAL_RISKS.map(r=>r.score>=80?'rgba(192,57,43,0.75)':r.score>=65?'rgba(230,126,34,0.75)':'rgba(39,174,96,0.7)'),
+        borderRadius:4
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:true,indexAxis:'y',plugins:{legend:{display:false}},
+      scales:{x:{max:100,ticks:{font:{family:'Cairo',size:9}}},y:{ticks:{font:{family:'Cairo',size:9}}}}}
+  });
+}
+
+function buildSchedList(){
+  const el = document.getElementById('sched-list');
+  const statusAr = {sent:'تم الإرسال',pending:'في الانتظار',sched:'مجدوَل'};
+  el.innerHTML = SCHED_DATA.map(s=>`
+    <div class="rep-sched-row">
+      <div class="rep-sched-info">
+        <b>${s.type}</b> &nbsp;·&nbsp; ${s.freq} &nbsp;·&nbsp; إلى: ${s.dest}
+        <span style="color:var(--tm);margin-right:6px;">${s.last}</span>
+      </div>
+      <span class="rep-sched-badge ${s.status}">${statusAr[s.status]}</span>
+    </div>`).join('');
+}
+
+function addSchedule(){
+  const type = document.getElementById('new-rep-type').value;
+  const freq = document.getElementById('new-rep-freq').value;
+  const dest = document.getElementById('new-rep-dest').value;
+  SCHED_DATA.push({type,freq:freq,dest,status:'sched',last:'يبدأ قريباً'});
+  buildSchedList();
+}
+
+// Prompt builders per report type
+const REPORT_PROMPTS = {
+  daily: 'اكتب التحليل الموقفي اليومي الرسمي لمنظومة الإنذار المبكر. يشمل: تقييم الوضع الراهن بالأرقام، أبرز 3 بؤر، أعلى منطقتين خطراً، التوصيات العاجلة الثلاث. العربية الفصحى المهنية. 5 جمل.',
+  weekly: 'اكتب النشرة الأسبوعية التنفيذية. يشمل: اتجاه المؤشر الوطني NRI (72 ارتفع 4 نقاط)، التغيرات الأسبوعية البارزة، المناطق الأكثر قلقاً، توصية استراتيجية واحدة للأسبوع القادم. أسلوب مختصر ومهني. 4-6 جمل.',
+  outbreak: ()=>{
+    const id = document.getElementById('outbreak-select')?.value;
+    const o = id ? OUTBREAKS.find(x=>x.id===id) : OUTBREAKS[0];
+    return `اكتب تقرير بؤرة تفصيلي رسمي لبؤرة ${DISEASES[o?.dis]?.ar||''} في مزرعة "${o?.farm||''}" بالمنطقة ${o?.reg||''}. درجة الخطر ${o?.risk||''}%. عدد الرؤوس ${o?.heads||''}. اذكر: السياق الوبائي، مسار الإجراءات، التوصيات الميدانية الثلاث، النطاق الجغرافي للخطر. العربية الفصحى. 5-6 جمل.`;
+  },
+  regional: 'اكتب تقريراً إقليمياً مقارناً. الأحساء الأعلى خطراً بـ18 بؤرة ومؤشر 89، يليها القصيم بـ14 بؤرة ومؤشر 84، وجازان بـ8 بؤر. اذكر: أسباب التفاوت، المناطق التي تحسّنت، توصية لكل منطقة من أعلى 3 مناطق. 5 جمل.',
+};
+
+async function generateReport(type){
+  const spinId = `${type}-spin`, txtId = `${type}-gen-txt`, outId = `${type}-out`;
+  const spin = document.getElementById(spinId);
+  const txt  = document.getElementById(txtId);
+  const out  = document.getElementById(outId);
+  if(!spin||!txt||!out) return;
+  spin.style.display='block'; txt.textContent='جارٍ التوليد...';
+  out.classList.remove('show');
+  const prompt = typeof REPORT_PROMPTS[type]==='function' ? REPORT_PROMPTS[type]() : REPORT_PROMPTS[type];
+  try{
+    const headers={'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
+    if(userApiKey) headers['x-api-key']=userApiKey;
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers,
+      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,
+        system: buildSystemContext(), messages:[{role:'user',content:prompt}]})
+    });
+    const data = await res.json();
+    out.textContent = data.content?.[0]?.text || 'تعذّر التوليد.';
+  }catch(e){
+    out.textContent = REPORT_FALLBACKS[type] || 'التحليل غير متاح حالياً.';
+  }
+  spin.style.display='none'; txt.textContent='⚡ إعادة التوليد';
+  out.classList.add('show');
+}
+
+const REPORT_FALLBACKS = {
+  daily:`يُشير مؤشر الخطر الوطني البالغ 72/100 إلى وضع وبائي متصاعد يستوجب تدخلاً عاجلاً، إذ ارتفع المؤشر 4 نقاط خلال 24 ساعة مدفوعاً بتكتل البؤر في الأحساء والقصيم. أبرز التهديدات: بؤرة مزرعة آل المطيري بدرجة خطر 97% وإصابة 340 رأس دون تحصين. التوصيات العاجلة: (1) تفعيل بروتوكول العزل الفوري للبؤر الحرجة (2) إطلاق حملة تطعيم طارئة لـ45,000 رأس (3) تشديد نقاط التفتيش على حركة الحيوانات.`,
+  weekly:`يواصل المؤشر الوطني ارتفاعه للأسبوع الثالث على التوالي، مسجلاً 72 نقطة بزيادة 4 نقاط هذا الأسبوع. الأحساء تقود المناطق الأعلى خطراً بارتفاع 4 بؤر جديدة، تليها القصيم بـ3 بؤر. التوصية الاستراتيجية للأسبوع القادم: إطلاق حملة مراقبة استباقية في المناطق الحدودية مع اليمن وعُمان استناداً لتقارير FAO عن ارتفاع الإصابات الإقليمية.`,
+  outbreak:`بُوشر بالتحقيق الوبائي فور رصد البؤرة. يُقدَّر نطاق الخطر المباشر بدائرة 5 كيلومترات تضم 4 مزارع بإجمالي 1,200 رأس. يُنصح باتخاذ الإجراءات الآتية فوراً: عزل المزرعة المُصابة وتعليق نقل الحيوانات، وإجراء مسح وبائي لجميع المزارع ضمن نطاق 10كم، وتطعيم جميع الحيوانات القابلة للإصابة في النطاق.`,
+  regional:`تتصدر الأحساء قائمة المناطق الأعلى خطورة بمؤشر 89 نتيجة الكثافة الحيوانية المرتفعة وتراكم البؤر النشطة. جازان تستوجب مراقبة مكثفة بسبب عوامل بيئية مواتية لانتشار الطاعون. في المقابل، نجحت المدينة المنورة في خفض مؤشرها من 71 إلى 52 عبر حملة التطعيم الطارئة الأخيرة، وهي نموذج يُحتذى.`,
+};
+
+function switchRepTab(type){
+  document.querySelectorAll('.rep-tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.rep===type));
+  document.querySelectorAll('.rep-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById(`rep-${type}`)?.classList.add('active');
+}
+
+function printReport(){ window.print(); }
+
+// ══════════════════════════════════════════════════════════
+//  PREDICTIVE INTELLIGENCE — SIR MODEL
+// ══════════════════════════════════════════════════════════
+
+// SIR Parameters per disease (β=transmission, γ=recovery, μ=mortality)
+const SIR_PARAMS = {
+  FMD:{ b:0.38, g:0.12, mu:0.02, N:50000, I0:340,  label:'حمى قلاعية', incubation:4  },
+  BRU:{ b:0.15, g:0.05, mu:0.01, N:30000, I0:180,  label:'بروسيلا',     incubation:14 },
+  PPR:{ b:0.31, g:0.10, mu:0.04, N:80000, I0:890,  label:'طاعون الغنم', incubation:3  },
+  LSD:{ b:0.12, g:0.07, mu:0.01, N:25000, I0:175,  label:'جلد عقدي',    incubation:7  },
+  NCD:{ b:0.42, g:0.14, mu:0.05, N:200000,I0:12000,label:'نيوكاسل',     incubation:2  },
+};
+
+let sirDays = 7, sirChart = null, probHorizon = 7;
+
+function runSIR(){
+  const dis = document.getElementById('sir-disease')?.value || 'FMD';
+  const p   = SIR_PARAMS[dis];
+  const days = sirDays;
+
+  // SIR numerical simulation (Euler method dt=0.1)
+  let S=p.N-p.I0, I=p.I0, R=0, D=0;
+  const dt=0.1, steps=days*10;
+  const Sarr=[S], Iarr=[I], Rarr=[R], Darr=[D];
+  const labels=['اليوم 0'];
+
+  for(let t=1;t<=steps;t++){
+    const newI  = p.b*(S/p.N)*I*dt;
+    const newR  = p.g*I*dt;
+    const newD  = p.mu*I*dt;
+    S = Math.max(0, S - newI);
+    I = Math.max(0, I + newI - newR - newD);
+    R += newR;
+    D += newD;
+    if(t%10===0){
+      Sarr.push(Math.round(S)); Iarr.push(Math.round(I));
+      Rarr.push(Math.round(R)); Darr.push(Math.round(D));
+      labels.push(`يوم ${t/10}`);
+    }
+  }
+
+  const ctx = document.getElementById('sir-chart');
+  if(sirChart) sirChart.destroy();
+  sirChart = new Chart(ctx.getContext('2d'),{
+    type:'line',
+    data:{labels, datasets:[
+      {label:'قابلة للإصابة (S)',data:Sarr,borderColor:'#1A6B99',backgroundColor:'rgba(26,107,153,0.08)',fill:true,tension:0.4,borderWidth:2,pointRadius:0},
+      {label:'مُصابة (I)',       data:Iarr,borderColor:'#E67E22',backgroundColor:'rgba(230,126,34,0.12)',fill:true,tension:0.4,borderWidth:2.5,pointRadius:0},
+      {label:'تعافت (R)',        data:Rarr,borderColor:'#27AE60',backgroundColor:'rgba(39,174,96,0.08)', fill:true,tension:0.4,borderWidth:2,pointRadius:0},
+      {label:'نافقة (D)',        data:Darr,borderColor:'#C0392B',backgroundColor:'rgba(192,57,43,0.1)', fill:true,tension:0.4,borderWidth:1.5,pointRadius:0},
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('ar-SA')}`}}
+      },
+      scales:{
+        x:{ticks:{font:{family:'Cairo',size:9},maxTicksLimit:8}},
+        y:{ticks:{font:{family:'Cairo',size:9},callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v}}
+      }
+    }
+  });
+
+  // Summary
+  const peakI   = Math.max(...Iarr);
+  const peakDay = Iarr.indexOf(peakI);
+  const totalD  = Math.round(D);
+  const R0      = (p.b/p.g).toFixed(2);
+  document.getElementById('sir-summary').innerHTML =
+    `<b>R₀ (معدل الانتقال الأساسي):</b> ${R0} — ${parseFloat(R0)>1?'الوباء في طور الانتشار':'الوباء في طور التراجع'}<br/>
+     <b>ذروة الإصابة:</b> ${peakI.toLocaleString('ar-SA')} رأس في اليوم ${peakDay}<br/>
+     <b>إجمالي الوفيات المتوقعة:</b> ${totalD.toLocaleString('ar-SA')} رأس<br/>
+     <b>فترة الحضانة:</b> ${p.incubation} أيام &nbsp;|&nbsp; <b>حجم القطيع المعرّض:</b> ${p.N.toLocaleString('ar-SA')} رأس<br/>
+     <b>التوصية:</b> ${parseFloat(R0)>2?'تدخل عاجل جداً — الوباء سريع الانتشار':parseFloat(R0)>1?'تدخل مبكر ضروري لكسر سلسلة العدوى':'استمرار المراقبة مع حملة تطعيم وقائية'}`;
+}
+
+function setSIRDays(d,btn){
+  sirDays=d;
+  document.querySelectorAll('[data-d]').forEach(b=>b.classList.toggle('active',b.dataset.d==d));
+  runSIR();
+}
+
+// Probability spread table
+const SPREAD_PROB = {
+  7:  [{reg:'الأحساء',p7:72,p14:85,p30:94,wind:'شمالي غربي',dis:'FMD'},{reg:'القصيم',p7:65,p14:79,p30:90,wind:'شمالي',dis:'FMD'},{reg:'جازان',p7:58,p14:71,p30:85,wind:'جنوبي غربي',dis:'PPR'},{reg:'حائل',p7:44,p14:61,p30:78,wind:'شمالي',dis:'PPR'},{reg:'الرياض',p7:38,p14:55,p30:72,wind:'شمالي غربي',dis:'BRU'},{reg:'المدينة',p7:31,p14:48,p30:65,wind:'غربي',dis:'FMD'},{reg:'تبوك',p7:25,p14:40,p30:58,wind:'شمالي',dis:'BRU'}],
+  14: [], 30: []
+};
+SPREAD_PROB[14] = SPREAD_PROB[7].map(r=>({...r, p_val:r.p14}));
+SPREAD_PROB[30] = SPREAD_PROB[7].map(r=>({...r, p_val:r.p30}));
+
+function buildProbTable(horizon){
+  const data = SPREAD_PROB[7];
+  const key  = horizon===7?'p7':horizon===14?'p14':'p30';
+  const t = document.getElementById('prob-table');
+  t.innerHTML = `<tr><th>المنطقة</th><th>احتمالية الانتشار ${horizon}د</th><th>المرض</th><th>اتجاه الرياح</th><th>التقييم</th></tr>
+  ${data.map(r=>{
+    const pv = r[key];
+    const col = pv>=70?'var(--red)':pv>=50?'var(--amber)':'var(--good)';
+    const badge = pv>=70?'h':pv>=50?'m':'l';
+    const badgeTxt = pv>=70?'مرتفع':pv>=50?'متوسط':'منخفض';
+    return `<tr>
+      <td>${r.reg}</td>
+      <td class="prob-bar-cell">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-weight:900;color:${col};min-width:30px;">${pv}%</span>
+          <div class="prob-bar-wrap" style="flex:1"><div class="prob-bar-fill" style="width:${pv}%;background:${col};"></div></div>
+        </div>
+      </td>
+      <td>${DISEASES[r.dis]?.ar||r.dis}</td>
+      <td>${r.wind}</td>
+      <td><span class="prob-badge ${badge}">${badgeTxt}</span></td>
+    </tr>`;
+  }).join('')}`;
+}
+
+function setProbHorizon(h,btn){
+  probHorizon=h;
+  document.querySelectorAll('[data-ph]').forEach(b=>b.classList.toggle('active',b.dataset.ph==h));
+  buildProbTable(h);
+}
+
+function applyProbToMap(){
+  // Toggle prediction on map and close modal
+  if(!predictionOn) togglePrediction();
+  closeModal('pred-overlay');
+}
+
+// Farm prediction table
+function buildFarmPredTable(){
+  const t = document.getElementById('farm-pred-table');
+  const farmsWithPred = FARMS.map(f=>{
+    // Predicted score = current score + spread factor based on disease airborne + wind
+    const dis = DISEASES[f.dis];
+    const spread = dis?.airborne ? Math.floor(Math.random()*8+3) : Math.floor(Math.random()*4+1);
+    return {...f, pred7: Math.min(99, f.score + spread)};
+  }).sort((a,b)=>b.pred7-a.pred7);
+
+  t.innerHTML = `<tr><th>المزرعة</th><th>الخطر الحالي</th><th>المتوقع 7 أيام</th><th>التغير</th><th>التحصين</th><th>الإجراء</th></tr>
+  ${farmsWithPred.map(f=>{
+    const delta = f.pred7 - f.score;
+    const col7  = getRiskColor(f.pred7);
+    const action= f.pred7>=90?'🚨 تدخل فوري':f.pred7>=75?'⚠ متابعة عاجلة':'👁 مراقبة';
+    return `<tr>
+      <td>${f.name}</td>
+      <td style="color:${getRiskColor(f.score)};font-weight:900;">${f.score}%</td>
+      <td style="color:${col7};font-weight:900;">${f.pred7}%</td>
+      <td style="color:var(--red);font-weight:700;">▲${delta}</td>
+      <td style="color:${f.vac==='غير محصّن'?'var(--red)':'var(--amber)'};font-weight:600;">${f.vac}</td>
+      <td style="font-size:10px;">${action}</td>
+    </tr>`;
+  }).join('')}`;
+}
+
+async function generateFarmPredAI(){
+  const spin = document.getElementById('farm-pred-spin');
+  const txt  = document.getElementById('farm-pred-txt');
+  const out  = document.getElementById('farm-pred-out');
+  spin.style.display='block'; txt.textContent='جارٍ التحليل...';
+  const highRisk = FARMS.filter(f=>f.score>=80).map(f=>`${f.name}(${f.score}% حالياً، تحصين: ${f.vac})`).join('، ');
+  const prompt = `أعطِ توصيات ميدانية مُرتَّبة بالأولوية لأعلى المزارع خطورةً: ${highRisk}. اذكر لكل مزرعة الإجراء المحدد المطلوب خلال 48 ساعة. العربية الفصحى. 5 جمل.`;
+  try{
+    const headers={'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
+    if(userApiKey) headers['x-api-key']=userApiKey;
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers,
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:buildSystemContext(),messages:[{role:'user',content:prompt}]})
+    });
+    const data = await res.json();
+    out.textContent = data.content?.[0]?.text||'تعذّر التحليل.';
+  }catch(e){
+    out.textContent='الأولوية القصوى: مزرعة آل المطيري (97%) تستوجب عزلاً فورياً وتطعيم طارئاً. تليها مزرعة العزيزية (93%) ومزرعة الجبل الجنوبية (89%) — جميعها تحتاج زيارة ميدانية خلال 24 ساعة وسحب عينات مؤكِّدة. مزارع حائل (85%) تحتاج تجديد التحصين المنتهي قبل الذروة.';
+  }
+  spin.style.display='none'; txt.textContent='⚡ إعادة التحليل';
+  out.classList.add('show');
+}
+
+// Scenarios
+const SCENARIOS = [
+  {id:'s1',title:'سيناريو A — لا تدخل',    desc:'استمرار الوضع الحالي بدون إجراءات إضافية',
+    result:'مؤشر الخطر الوطني سيرتفع إلى 84 خلال 14 يوماً. عدد البؤر سيتجاوز 95 بؤرة. 3 مناطق جديدة ستدخل منطقة الخطر الحرج. الخسائر المتوقعة تتجاوز 12,000 رأس.'},
+  {id:'s2',title:'سيناريو B — تطعيم جزئي',  desc:'تطعيم المزارع ضمن نطاق 5كم من البؤر النشطة',
+    result:'تراجع المؤشر إلى 66 خلال 21 يوماً. انخفاض البؤر الجديدة بنسبة 42%. تكلفة التطعيم المقدرة: 1.8 مليون ريال. الخسائر تنخفض 60% مقارنة بسيناريو عدم التدخل.'},
+  {id:'s3',title:'سيناريو C — عزل كامل',   desc:'إغلاق حركة الحيوانات في المناطق الحرجة',
+    result:'توقف انتشار الأمراض التنفسية بنسبة 85% خلال 7 أيام. تأثير اقتصادي سلبي على الأسواق. المدة المتوقعة: 21-28 يوماً حتى رفع العزل.'},
+  {id:'s4',title:'سيناريو D — التدخل الشامل',desc:'عزل + تطعيم شامل + مراقبة مكثفة',
+    result:'الحل الأمثل: مؤشر الخطر يتراجع لأقل من 50 خلال 30 يوماً. تكلفة إجمالية: 4.5 مليون ريال. العائد: تجنب خسائر تتجاوز 35 مليون ريال في الثروة الحيوانية.'},
+];
+
+function buildScenarios(){
+  const el = document.getElementById('scenarios-list');
+  el.innerHTML = SCENARIOS.map(s=>`
+    <div class="scenario-card" id="sc-${s.id}" onclick="selectScenario('${s.id}')">
+      <div class="sc-title">${s.title}</div>
+      <div class="sc-desc">${s.desc}</div>
+      <div class="sc-result" id="scr-${s.id}">
+        <b>النتيجة المتوقعة:</b><br/>${s.result}
+      </div>
+    </div>`).join('');
+}
+
+function selectScenario(id){
+  document.querySelectorAll('.scenario-card').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('.sc-result').forEach(r=>r.classList.remove('show'));
+  document.getElementById(`sc-${id}`)?.classList.add('selected');
+  document.getElementById(`scr-${id}`)?.classList.add('show');
+}
+
+function openPrediction(){
+  document.getElementById('pred-overlay').classList.add('show');
+  setTimeout(()=>{
+    runSIR();
+    buildProbTable(7);
+    buildFarmPredTable();
+    buildScenarios();
+  }, 100);
+}
+
+function switchPredTab(idx){
+  document.querySelectorAll('.pred-modal-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  document.querySelectorAll('.pred-pane').forEach((p,i)=>p.classList.toggle('active',i===idx));
+}
+
+function togglePrediction(){
+  predictionOn=!predictionOn;
+  document.getElementById('pred-txt').textContent = predictionOn?'إيقاف التوقع':'تفعيل توقع الانتشار';
+  document.getElementById('predict-btn').style.background = predictionOn?'rgba(107,63,160,0.9)':'rgba(27,58,45,0.92)';
+  document.getElementById('predict-btn').style.borderColor = predictionOn?'rgba(107,63,160,0.8)':'var(--sage)';
+  document.getElementById('predict-btn').style.color = predictionOn?'#e8d4ff':'var(--sage)';
+  document.getElementById('pred-info').style.display = predictionOn?'block':'none';
+  predLayers.forEach(l=>{try{map.removeLayer(l);}catch(e){}});
+  predLayers=[];
+  if(!predictionOn) return;
+  OUTBREAKS.filter(o=>o.risk>=70).forEach(o=>{
+    const dis=DISEASES[o.dis];
+    const wf=dis.airborne?1.9:1.25;
+    [1.0,0.7,0.45].forEach((mult,i)=>{
+      const opac=[0.16,0.11,0.06][i];
+      const col=['#C0392B','#E67E22','#F1C40F'][i];
+      const r=dis.spread*1000*wf*(1+i*0.35)*mult;
+      const latOff=(i*0.04)*(dis.airborne?1:0);
+      const cl=L.circle([o.lat+latOff,o.lng],{
+        radius:r,color:col,fillColor:col,fillOpacity:opac,weight:0
+      }).addTo(map);
+      predLayers.push(cl);
+    });
+  });
+}
+// ══════════════════════════════════════════════════════════
+//  LEFT PANEL — Disease Filters & Farm List
+// ══════════════════════════════════════════════════════════
+function buildDisGrid(){
+  const g=document.getElementById('dis-grid');
+  g.innerHTML='';
+  Object.entries(DISEASES).forEach(([k,v])=>{
+    const d=document.createElement('div');
+    d.className=`dis-btn ${k.toLowerCase()}`;
+    d.dataset.k=k;
+    d.innerHTML=`<span style="color:${v.col};font-size:14px;">●</span> ${v.ar}`;
+    d.addEventListener('click',()=>{
+      document.querySelectorAll('.dis-btn').forEach(b=>b.classList.remove('active'));
+      d.classList.add('active');
+      renderOutbreaks(k);
+      filterMapTop(k);
+    });
+    g.appendChild(d);
+  });
+  // All button
+  const all=document.createElement('div');
+  all.className='dis-btn active';all.style='grid-column:span 2;';
+  all.innerHTML='🔵 عرض الكل';
+  all.addEventListener('click',()=>{
+    document.querySelectorAll('.dis-btn').forEach(b=>b.classList.remove('active'));
+    all.classList.add('active');
+    renderOutbreaks('all');
+    filterMapTop('all');
+  });
+  g.prepend(all);
+}
+
+function filterMapTop(k){
+  document.querySelectorAll('.mdf-btn').forEach(b=>{
+    b.classList.toggle('active',b.dataset.d===k);
+  });
+}
+
+function buildLayerGrid(){
+  const g=document.getElementById('layer-grid');
+  const layers=[
+    {id:'clusters',lbl:'تجمعات البؤر',on:true},
+    {id:'farms',lbl:'المزارع',on:true},
+    {id:'radii',lbl:'أقراد الخطر',on:true},
+    {id:'density',lbl:'كثافة الحيوانات',on:false},
+  ];
+  layers.forEach(l=>{
+    const b=document.createElement('div');
+    b.className='dis-btn'+(l.on?' active':'');
+    b.innerHTML=l.lbl;
+    b.addEventListener('click',()=>b.classList.toggle('active'));
+    g.appendChild(b);
+  });
+}
+
+function buildFarmList(){
+  const el=document.getElementById('farm-list');
+  el.innerHTML='';
+  FARMS.sort((a,b)=>b.score-a.score).forEach(f=>{
+    const cls=f.score>=80?'r':f.score>=60?'a':'g';
+    const col=f.score>=80?'var(--red)':f.score>=60?'var(--amber)':'var(--good)';
+    const div=document.createElement('div');
+    div.className=`farm-card ${cls}`;
+    div.innerHTML=`
+      <div class="fc-top">
+        <div class="fc-name">${f.name}</div>
+        <div class="fc-score ${cls}">${f.score}</div>
+      </div>
+      <div class="fc-detail">${f.reg} · ${DISEASES[f.dis]?.ar||f.dis} · ${f.dist}كم من البؤرة</div>
+      <div class="fc-detail" style="margin-top:2px;">التحصين: <b style="color:${f.vac==='غير محصّن'?'var(--red)':'var(--amber)'};">${f.vac}</b></div>
+      <div class="fc-bar-w"><div class="fc-bar" style="width:${f.score}%;background:${col};"></div></div>`;
+    div.addEventListener('click',()=>showFarmDetail(f));
+    el.appendChild(div);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  CHARTS
+// ══════════════════════════════════════════════════════════
+function buildCharts(){
+  // Trend chart
+  const ctx1=document.getElementById('trend-chart').getContext('2d');
+  new Chart(ctx1,{
+    type:'line',
+    data:{
+      labels:TREND_DATA.labels,
+      datasets:Object.entries(DISEASES).map(([k,v])=>({
+        label:v.ar,data:TREND_DATA[k],
+        borderColor:v.col,backgroundColor:v.col+'15',
+        tension:0.4,pointRadius:2,borderWidth:2,fill:false
+      }))
+    },
+    options:{
+      responsive:true,maintainAspectRatio:true,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'Cairo',size:9},color:'#7A9A85'}},
+        y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'Cairo',size:9},color:'#7A9A85'}}
+      }
+    }
+  });
+
+  // Region chart
+  const ctx2=document.getElementById('region-chart').getContext('2d');
+  new Chart(ctx2,{
+    type:'bar',
+    data:{
+      labels:REGION_DIST.labels,
+      datasets:[{data:REGION_DIST.data,backgroundColor:['#C0392B','#E67E22','#F1C40F','#E67E22','#27AE60','#1A6B99','#6B3FA0','#C2D69B','#aaa'],borderRadius:4}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:true,indexAxis:'y',
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'Cairo',size:9},color:'#7A9A85'}},
+        y:{ticks:{font:{family:'Cairo',size:9},color:'#3A5444'}}
+      }
+    }
+  });
+
+  // NRI mini sparkline
+  const ctx3=document.getElementById('nri-mini').getContext('2d');
+  new Chart(ctx3,{
+    type:'line',
+    data:{labels:NRI_HISTORY.map((_,i)=>''),datasets:[{data:NRI_HISTORY,borderColor:'#E67E22',backgroundColor:'rgba(230,126,34,0.15)',tension:0.4,pointRadius:0,borderWidth:1.5,fill:true}]},
+    options:{responsive:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}}}
+  });
+
+  // Density donut
+  const ctx4=document.getElementById('density-chart').getContext('2d');
+  new Chart(ctx4,{
+    type:'doughnut',
+    data:{
+      labels:Object.values(DISEASES).map(v=>v.ar),
+      datasets:[{data:[19,12,15,8,12],backgroundColor:Object.values(DISEASES).map(v=>v.col+'cc'),borderWidth:2,borderColor:'#fff'}]
+    },
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Cairo',size:9},padding:6}}}}
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  ALERTS FEED
+// ══════════════════════════════════════════════════════════
+function buildAlerts(){
+  const feed=document.getElementById('alerts-feed');
+  feed.innerHTML='';
+  const typeAr={critical:'حرج',warning:'تحذير',info:'معلومة',good:'إيجابي'};
+  ALERTS.forEach(a=>{
+    feed.innerHTML+=`<div class="al-card ${a.t}">
+      <div class="al-top">
+        <span class="al-type">${typeAr[a.t]}</span>
+        <span class="al-time">${a.time}</span>
+      </div>
+      <div class="al-title">${a.ti}</div>
+      <div class="al-body">${a.b}</div>
+      <div class="al-footer">
+        <span class="al-region">📍 ${a.r}</span>
+        ${a.sms?`<span class="al-sms" onclick="prefillSMS('${a.ti}','${a.r}')">📡 SMS</span>`:''}
+      </div>
+    </div>`;
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  API KEY MANAGEMENT
+// ══════════════════════════════════════════════════════════
+let userApiKey = '';
+
+function openApiKey(){
+  document.getElementById('apikey-overlay').classList.add('show');
+  if(userApiKey) document.getElementById('api-key-input').value=userApiKey;
+}
+
+function saveApiKey(){
+  const k=document.getElementById('api-key-input').value.trim();
+  if(!k){alert('يرجى إدخال مفتاح API صحيح.');return;}
+  userApiKey=k;
+  document.getElementById('apikey-overlay').classList.remove('show');
+  document.getElementById('api-key-btn').textContent='✓ AI نشط';
+  document.getElementById('api-key-btn').style.background='rgba(194,214,155,0.25)';
+  document.getElementById('api-key-btn').style.borderColor='var(--sage)';
+  addMsg('تم تفعيل المساعد الذكي بنجاح ✓ — يمكنك الآن طرح أي سؤال.','ai');
+}
+
+// ══════════════════════════════════════════════════════════
+//  SMART FALLBACK RESPONSES (when no API key / CORS)
+// ══════════════════════════════════════════════════════════
+function getSmartFallback(q){
+  const lq=q.toLowerCase();
+  const crit=OUTBREAKS.filter(o=>o.risk>=90);
+  const hi=OUTBREAKS.filter(o=>o.risk>=70);
+  const topOut=OUTBREAKS.sort((a,b)=>b.risk-a.risk)[0];
+  const byReg=(reg)=>OUTBREAKS.filter(o=>o.reg===reg).length;
+
+  if(lq.includes('أخطر') || lq.includes('منطقة') || lq.includes('خطر')){
+    return `بناءً على البيانات الحالية، الأحساء هي أعلى المناطق خطورةً بـ${byReg('الأحساء')} بؤر نشطة، يليها القصيم بـ${byReg('القصيم')} بؤرة. البؤرة الأشد خطورة هي "${topOut.farm}" في ${topOut.reg} بدرجة خطر ${topOut.risk}% نتيجة إصابة ${DISEASES[topOut.dis].ar} في ${topOut.heads} رأس دون تحصين فعّال. مؤشر الخطر الوطني بلغ 72/100 وهو مستوى تحذيري يستوجب تدخلاً عاجلاً.`;
+  }
+  if(lq.includes('قلاعية') || lq.includes('fmd')){
+    const fmd=OUTBREAKS.filter(o=>o.dis==='FMD');
+    const regs=[...new Set(fmd.map(o=>o.reg))];
+    return `سُجّل ${fmd.length} بؤرة حمى قلاعية نشطة هذا الشهر موزعة على ${regs.length} مناطق: ${regs.join('، ')}. أعلى تركيز في الأحساء والقصيم. الجديد هذا الأسبوع: 3 بؤر بنسبة خطر فوق 90%. النوع الجيني المشخّص O/ME-SA/Ind-2001d — ينتقل جوياً لمسافة تصل 12كم في ظروف الرياح الحالية. التطعيم العاجل ضروري لـ 45,000 رأس في النطاق.`;
+  }
+  if(lq.includes('مزرعة') || lq.includes('أعلى') || lq.includes('مزارع')){
+    const top5=FARMS.sort((a,b)=>b.score-a.score).slice(0,5);
+    return `أعلى 5 مزارع خطورةً حالياً:\n${top5.map((f,i)=>`${i+1}. ${f.name} (${f.reg}) — درجة الخطر: ${f.score}% — التحصين: ${f.vac} — ${f.dist}كم من البؤرة`).join('\n')}\nجميع هذه المزارع تستوجب زيارة ميدانية خلال 48 ساعة وتحصيناً طارئاً.`;
+  }
+  if(lq.includes('انتشار') || lq.includes('توقع') || lq.includes('7 أيام')){
+    return `توقع الانتشار خلال الـ7 أيام القادمة (نموذج SIR مُعدَّل):\n- الأحساء: احتمال 68% انتقال بؤرة F001 لمزرعتين شمالاً. اتجاه الرياح الشمالي الغربي بسرعة 18كم/ساعة يرفع المخاطر.\n- القصيم: احتمال 55% توسع بؤرة Q004 نتيجة شبكة نقل الحيوانات.\n- جازان: خطر تصاعدي بسبب الرطوبة العالية (72%) المواتية لانتشار الأمراض التنفسية.\nالتوصية: تفعيل نقاط تفتيش على طرق نقل الحيوانات من الأحساء والقصيم فوراً.`;
+  }
+  if(lq.includes('تقرير') || lq.includes('ملخص')){
+    return `ملخص الوضع الراهن: مؤشر الخطر الوطني 72/100 (ارتفع 4 نقاط خلال 24 ساعة). ${OUTBREAKS.length} بؤرة نشطة، منها ${crit.length} حرجة و${hi.length-crit.length} عالية الخطورة. الأمراض الأكثر نشاطاً: حمى قلاعية (29%)، طاعون الغنم (23%). أولويات التدخل: الأحساء والقصيم وجازان. 127 مزرعة ضمن النطاق الحرج دون تحصين كافٍ.`;
+  }
+  // Default
+  return `النظام يرصد حالياً ${OUTBREAKS.length} بؤرة نشطة في المملكة. مؤشر الخطر الوطني: 72/100. يمكنك سؤالي عن: أخطر المناطق، بؤر مرض محدد، المزارع الأعلى خطورة، توقع الانتشار، أو طلب ملخص تقريري. — ملاحظة: لتفعيل التحليل الذكي الكامل اضغط ⚙ API في الأعلى.`;
+}
+
+// ══════════════════════════════════════════════════════════
+//  AI CHAT
+// ══════════════════════════════════════════════════════════
+function buildSystemContext(){
+  const total=OUTBREAKS.length;
+  const crit=OUTBREAKS.filter(o=>o.risk>=90).length;
+  const hi=OUTBREAKS.filter(o=>o.risk>=70&&o.risk<90).length;
+  const byDis=Object.entries(DISEASES).map(([k,v])=>`${v.ar}: ${OUTBREAKS.filter(o=>o.dis===k).length} بؤرة`).join('، ');
+  const topRegions=REGIONS.map(r=>({r,c:OUTBREAKS.filter(o=>o.reg===r).length})).sort((a,b)=>b.c-a.c).slice(0,4).map(x=>`${x.r}(${x.c})`).join('، ');
+  const highRiskFarms=FARMS.filter(f=>f.score>=80).map(f=>`${f.name}(${f.score}%)`).join('، ');
+  return `أنت مساعد ذكاء اصطناعي متخصص في منظومة الإنذار المبكر البيطري والنباتي التابعة لوزارة البيئة والمياه والزراعة في المملكة العربية السعودية.
+
+البيانات الحالية في النظام:
+- إجمالي البؤر النشطة: ${total} بؤرة
+- بؤر حرجة (خطر 90+): ${crit} بؤرة  
+- بؤر عالية الخطورة (70–89): ${hi} بؤرة
+- توزيع حسب المرض: ${byDis}
+- أعلى المناطق تركيزاً: ${topRegions}
+- مؤشر الخطر الوطني (NRI): 72/100 (ارتفع 4 نقاط)
+- المزارع الأعلى خطورة: ${highRiskFarms}
+- أعلى بؤرة خطراً: مزرعة آل المطيري — الأحساء (97%) — حمى قلاعية — 340 رأس
+- أحدث بؤرة: جازان J001 منذ 14 دقيقة (89% خطر)
+
+أجب بالعربية الفصحى المهنية. كن دقيقاً ومختصراً. استخدم الأرقام والبيانات الفعلية. لا تستخدم markdown أو bullets — نص عادي فقط.`;
+}
+
+function addMsg(text,role){
+  const msgs=document.getElementById('chat-msgs');
+  const div=document.createElement('div');
+  div.className=`msg ${role}`;
+  div.innerHTML=text.replace(/\n/g,'<br/>');
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  return div;
+}
+
+async function sendChat(){
+  const inp=document.getElementById('chat-input');
+  const q=inp.value.trim();
+  if(!q) return;
+  inp.value='';
+  document.getElementById('quick-qs').style.display='none';
+  addMsg(q,'user');
+  chatHistory.push({role:'user',content:q});
+  const typing=addMsg('جارٍ التحليل...','typing');
+  document.getElementById('chat-send').disabled=true;
+
+  // If no API key, use smart fallback immediately
+  if(!userApiKey){
+    await new Promise(r=>setTimeout(r,700)); // realistic delay
+    typing.remove();
+    const reply=getSmartFallback(q);
+    chatHistory.push({role:'assistant',content:reply});
+    const m=addMsgWithMapAction(reply,'ai');
+    const inner=m.querySelector('.ai-map-action');
+    if(!inner){
+      m.innerHTML=m.innerHTML+'<div style="font-size:9px;color:var(--tm);margin-top:6px;border-top:1px solid var(--bmd);padding-top:4px;">💡 ردود محلية — لتفعيل التحليل الكامل اضغط ⚙ API</div>';
+    }
+    document.getElementById('chat-send').disabled=false;
+    return;
+  }
+
+  // Try Anthropic API with user key
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':userApiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:buildSystemContext(),
+        messages:chatHistory
+      })
+    });
+    if(!res.ok){
+      const err=await res.json().catch(()=>({}));
+      throw new Error(err.error?.message||`HTTP ${res.status}`);
+    }
+    const data=await res.json();
+    typing.remove();
+    const reply=data.content?.[0]?.text||'تعذّر الحصول على الرد.';
+    chatHistory.push({role:'assistant',content:reply});
+    addMsgWithMapAction(reply,'ai');
+  }catch(e){
+    typing.remove();
+    // Fallback on any error
+    const reply=getSmartFallback(q);
+    chatHistory.push({role:'assistant',content:reply});
+    const m=addMsgWithMapAction(reply,'ai');
+    const inner=m.querySelector('.ai-map-action');
+    if(!inner){
+      m.innerHTML+=`<div style="font-size:9px;color:var(--red);margin-top:6px;border-top:1px solid #fcc;padding-top:4px;">⚠ خطأ API: ${e.message} — عرض ردود محلية</div>`;
+    }
+  }
+  document.getElementById('chat-send').disabled=false;
+}
+
+function askAboutOutbreak(id){
+  const o=OUTBREAKS.find(x=>x.id===id);
+  if(!o) return;
+  // Switch to AI tab
+  switchRpTab(0);
+  document.getElementById('chat-input').value=
+    `حلل بؤرة ${DISEASES[o.dis].ar} في ${o.farm} بالمنطقة ${o.reg}. درجة الخطر ${o.risk}%. عدد الرؤوس ${o.heads}. ما التوصيات الميدانية العاجلة؟`;
+  sendChat();
+}
+
+function quickAsk(q){
+  document.getElementById('chat-input').value=q;
+  sendChat();
+}
+
+// ══════════════════════════════════════════════════════════
+//  REPORT GENERATOR
+// ══════════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════════
+//  SMS
+// ══════════════════════════════════════════════════════════
+function openSMS(){
+  buildRecipients();
+  document.getElementById('sms-overlay').classList.add('show');
+}
+
+function buildRecipients(){
+  const wrap=document.getElementById('recip-wrap');
+  wrap.innerHTML='';
+  RECIPIENTS.forEach((r,i)=>{
+    const div=document.createElement('div');
+    div.className='rcp'+(i<2?' sel':'');
+    div.innerHTML=`<span class="ck">✓</span>${r}`;
+    div.addEventListener('click',()=>div.classList.toggle('sel'));
+    wrap.appendChild(div);
+  });
+}
+
+function prefillSMS(title,region){
+  buildRecipients();
+  openSMS();
+  const d=new Date();
+  document.getElementById('sms-ta').value=
+    `[تنبيه EWIS ${d.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'})}] ${title} — المنطقة: ${region}. سجّل دخولك للنظام للاطلاع على التفاصيل الكاملة وبروتوكول التدخل.`;
+  updChar();
+}
+
+function updChar(){
+  const t=document.getElementById('sms-ta').value;
+  document.getElementById('sms-chr').textContent=`${t.length} / 160`;
+}
+
+function sendSMS(){
+  const recips=Array.from(document.querySelectorAll('.rcp.sel')).map(r=>r.textContent.replace('✓','').trim());
+  if(!recips.length){alert('اختر مستلماً على الأقل.');return;}
+  const msg=document.getElementById('sms-ta').value;
+  if(!msg.trim()){alert('الرسالة فارغة.');return;}
+  document.getElementById('sms-snd').textContent='جارٍ الإرسال...';
+  setTimeout(()=>{
+    const s=document.getElementById('sms-sent');
+    s.textContent=`✓ أُرسلت إلى: ${recips.join('، ')}`;
+    s.style.display='block';
+    document.getElementById('sms-snd').innerHTML='📡 إرسال البث';
+    setTimeout(()=>{s.style.display='none';},3500);
+  },1200);
+}
+
+// ══════════════════════════════════════════════════════════
+//  FARM DETAIL
+// ══════════════════════════════════════════════════════════
+function showFarmDetail(f){
+  activeFarm=f;
+  document.getElementById('farm-modal-title').textContent=f.name;
+  const col=f.score>=80?'var(--red)':f.score>=60?'var(--amber)':'var(--good)';
+  document.getElementById('farm-modal-body').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+      <div class="rs-kpi"><div class="rs-kpi-v" style="color:${col};">${f.score}</div><div class="rs-kpi-l">درجة الخطر</div></div>
+      <div class="rs-kpi"><div class="rs-kpi-v">${f.heads.toLocaleString('ar-SA')}</div><div class="rs-kpi-l">عدد الرؤوس</div></div>
+      <div class="rs-kpi"><div class="rs-kpi-v">${f.dist}</div><div class="rs-kpi-l">كم من البؤرة</div></div>
+      <div class="rs-kpi amb"><div class="rs-kpi-v" style="font-size:13px;">${f.vac}</div><div class="rs-kpi-l">حالة التحصين</div></div>
+    </div>
+    <div style="font-size:12px;color:var(--tb);line-height:1.8;background:var(--bg);border:1px solid var(--blt);border-radius:8px;padding:11px;">
+      <b>المرض:</b> ${DISEASES[f.dis]?.ar||f.dis}<br/>
+      <b>المنطقة:</b> ${f.reg}<br/>
+      <b>تقييم الخطر:</b> المزرعة ضمن نطاق ${f.dist}كم من بؤرة نشطة مع ${f.vac==='غير محصّن'?'غياب تام للحماية المناعية':'حماية منقوصة'}. يُوصى بالتدخل ${f.score>=80?'الفوري':'العاجل'}.
+    </div>`;
+  document.getElementById('farm-overlay').classList.add('show');
+}
+
+async function farmAIAnalysis(){
+  if(!activeFarm) return;
+  const f=activeFarm;
+  const body=document.getElementById('farm-modal-body');
+  body.innerHTML+=`<div class="report-ai-body" id="farm-ai-out" style="margin-top:10px;">⚡ جارٍ التحليل...</div>`;
+  try{
+    const headers={'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
+    if(userApiKey) headers['x-api-key']=userApiKey;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers,
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:400,
+        system:buildSystemContext(),
+        messages:[{role:'user',content:`حلل خطر مزرعة "${f.name}" في ${f.reg}. درجة الخطر ${f.score}. ${f.dist}كم من بؤرة ${DISEASES[f.dis]?.ar}. حالة التحصين: ${f.vac}. ${f.heads} رأس. اذكر 3 توصيات ميدانية عاجلة موجزة.`}]
+      })
+    });
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    document.getElementById('farm-ai-out').textContent=data.content?.[0]?.text||'تعذّر التحليل.';
+  }catch(e){
+    const vr=f.vac==='غير محصّن'?'بصفة عاجلة جداً ':f.vac==='منتهي الصلاحية'?'بجرعة تجديدية ':'';
+    document.getElementById('farm-ai-out').textContent=
+      `التوصيات الميدانية العاجلة:\n1. زيارة ميدانية خلال 24 ساعة وأخذ عينات دم من 10% من القطيع.\n2. تحصين القطيع ${vr}بلقاح ${DISEASES[f.dis]?.ar} المعتمد من المختبر المرجعي.\n3. عزل المزرعة وتعليق نقل الحيوانات منها وإليها حتى صدور نتائج العينات.`;
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  TABS & UTILITIES
+// ══════════════════════════════════════════════════════════
+function switchLpTab(idx){
+  document.querySelectorAll('.lp-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  document.querySelectorAll('.lp-pane').forEach((p,i)=>p.classList.toggle('active',i===idx));
+}
+function switchRpTab(idx){
+  document.querySelectorAll('.rp-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  document.querySelectorAll('.rp-pane').forEach((p,i)=>p.classList.toggle('active',i===idx));
+}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+
+function updateClock(){
+  const d=new Date();
+  document.getElementById('tb-clock').textContent=d.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+  const s=document.getElementById('bb-sync');
+  if(s)s.textContent=d.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+//  ① POLYGON RISK ZONES — KSA Regions GeoJSON (Simplified)
+// ══════════════════════════════════════════════════════════
+const KSA_REGIONS_GEO = [
+  { name:'الأحساء',     score:89, bou:18, crit:5,
+    coords:[[25.0,48.5],[25.0,50.5],[26.5,50.5],[26.5,49.0],[25.8,48.0],[25.0,48.5]] },
+  { name:'القصيم',      score:84, bou:14, crit:4,
+    coords:[[25.5,42.5],[25.5,45.5],[27.5,45.5],[27.5,42.5],[25.5,42.5]] },
+  { name:'الرياض',      score:65, bou:10, crit:1,
+    coords:[[23.0,44.0],[23.0,47.5],[25.5,47.5],[25.5,44.0],[23.0,44.0]] },
+  { name:'حائل',        score:71, bou:6,  crit:2,
+    coords:[[26.5,39.5],[26.5,42.5],[28.5,42.5],[28.5,39.5],[26.5,39.5]] },
+  { name:'تبوك',        score:52, bou:4,  crit:0,
+    coords:[[27.5,34.0],[27.5,38.0],[30.5,38.0],[30.5,34.0],[27.5,34.0]] },
+  { name:'المدينة المنورة', score:58, bou:5, crit:1,
+    coords:[[23.0,38.0],[23.0,41.5],[25.5,41.5],[25.5,38.0],[23.0,38.0]] },
+  { name:'جازان',       score:79, bou:8,  crit:3,
+    coords:[[16.0,41.5],[16.0,43.5],[18.5,43.5],[18.5,41.5],[16.0,41.5]] },
+  { name:'نجران',       score:74, bou:7,  crit:2,
+    coords:[[17.0,43.5],[17.0,47.0],[19.5,47.0],[19.5,43.5],[17.0,43.5]] },
+  { name:'عسير',        score:62, bou:5,  crit:1,
+    coords:[[18.5,41.5],[18.5,43.5],[20.5,43.5],[20.5,41.5],[18.5,41.5]] },
+  { name:'الباحة',      score:48, bou:3,  crit:0,
+    coords:[[19.8,40.5],[19.8,41.8],[20.8,41.8],[20.8,40.5],[19.8,40.5]] },
+  { name:'الجوف',       score:55, bou:4,  crit:0,
+    coords:[[29.0,36.0],[29.0,40.0],[31.5,40.0],[31.5,36.0],[29.0,36.0]] },
+  { name:'الحدود الشمالية', score:38, bou:2, crit:0,
+    coords:[[30.0,37.5],[30.0,42.5],[32.5,42.5],[32.5,37.5],[30.0,37.5]] },
+];
+
+let polygonLayer = null, polygonsOn = false, activePolygon = null;
+
+function getPolyColor(score){
+  if(score >= 80) return { fill:'#C0392B', border:'#922B21' };
+  if(score >= 65) return { fill:'#E67E22', border:'#A04000' };
+  if(score >= 50) return { fill:'#F1C40F', border:'#B7950B' };
+  return { fill:'#27AE60', border:'#1D8348' };
+}
+
+function renderPolygons(){
+  if(polygonLayer){ map.removeLayer(polygonLayer); polygonLayer=null; }
+  const layers = KSA_REGIONS_GEO.map(reg=>{
+    const col = getPolyColor(reg.score);
+    const latLngs = reg.coords.map(c=>[c[0],c[1]]);
+    const poly = L.polygon(latLngs,{
+      color: col.border, weight:2,
+      fillColor: col.fill, fillOpacity:0.22,
+      dashArray: reg.score>=80?null:'6,4'
+    });
+    poly.on('click', ()=> showRegionInfo(reg, poly));
+    poly.on('mouseover', ()=> poly.setStyle({fillOpacity:0.38, weight:3}));
+    poly.on('mouseout',  ()=>{
+      if(activePolygon !== poly) poly.setStyle({fillOpacity:0.22, weight:2});
+    });
+    // Score label at center
+    const center = latLngs.reduce((a,c)=>[a[0]+c[0]/latLngs.length, a[1]+c[1]/latLngs.length],[0,0]);
+    const label = L.divIcon({
+      className:'',
+      html:`<div style="
+        background:${col.fill};color:#fff;border:2px solid #fff;
+        border-radius:6px;padding:3px 7px;font-family:'Cairo',sans-serif;
+        font-size:10px;font-weight:900;white-space:nowrap;
+        box-shadow:0 1px 5px rgba(0,0,0,0.2);text-align:center;
+      ">${reg.name}<br/>${reg.score}%</div>`,
+      iconAnchor:[0,0]
+    });
+    const marker = L.marker(center, {icon:label, interactive:false });
+    return [poly, marker];
+  });
+  const allLayers = layers.flat();
+  polygonLayer = L.layerGroup(allLayers).addTo(map);
+}
+
+function togglePolygons(){
+  polygonsOn = !polygonsOn;
+  const btn = document.getElementById('poly-btn');
+  btn.classList.toggle('active', polygonsOn);
+  btn.textContent = polygonsOn ? '✓ مناطق الخطر' : '🗺 مناطق الخطر';
+  if(polygonsOn){ renderPolygons(); }
+  else {
+    if(polygonLayer){ map.removeLayer(polygonLayer); polygonLayer=null; }
+    document.getElementById('region-info-panel').style.display='none';
+  }
+}
+
+function showRegionInfo(reg, poly){
+  // Reset previous
+  if(activePolygon && activePolygon !== poly){
+    const prevCol = getPolyColor(activePolygon._reg?.score||50);
+    activePolygon.setStyle({fillOpacity:0.22, weight:2, color:prevCol.border});
+  }
+  activePolygon = poly; poly._reg = reg;
+  const col = getPolyColor(reg.score);
+  poly.setStyle({fillOpacity:0.45, weight:3, color:col.border});
+
+  const panel = document.getElementById('region-info-panel');
+  const tier  = reg.score>=80?'حرج':reg.score>=65?'عالٍ':reg.score>=50?'متوسط':'منخفض';
+  const tierCol= col.fill;
+  panel.innerHTML = `
+    <div class="rip-name">📍 ${reg.name}</div>
+    <span class="rip-score" style="background:${tierCol}22;color:${tierCol};border:1px solid ${tierCol}55;">${reg.score}% — ${tier}</span>
+    <div class="rip-row"><span>البؤر النشطة</span><b>${reg.bou}</b></div>
+    <div class="rip-row"><span>البؤر الحرجة</span><b style="color:${reg.crit>2?'var(--red)':'var(--td)'}">${reg.crit}</b></div>
+    <div class="rip-row"><span>التوصية</span><b>${reg.score>=80?'تدخل فوري':reg.score>=65?'متابعة عاجلة':'مراقبة'}</b></div>
+    <button class="rip-action" onclick="askRegionAI('${reg.name}')">⚡ تحليل ذكي للمنطقة</button>
+  `;
+  panel.style.display='block';
+}
+
+function highlightRegionByName(name){
+  if(!polygonsOn){ togglePolygons(); }
+  const reg = KSA_REGIONS_GEO.find(r=>r.name===name||name.includes(r.name)||r.name.includes(name));
+  if(!reg) return;
+  // Zoom to region center
+  const center = reg.coords.reduce((a,c)=>[a[0]+c[0]/reg.coords.length,a[1]+c[1]/reg.coords.length],[0,0]);
+  map.flyTo(center, 8, {duration:1.2});
+  // Show info after zoom
+  setTimeout(()=>{
+    const layers = polygonLayer?.getLayers()||[];
+    const poly = layers.find(l=>l._reg?.name===name||l._reg?.name===reg.name);
+    if(poly && poly._reg) showRegionInfo(poly._reg, poly);
+    else showRegionInfo(reg, {setStyle:()=>{}, _reg:reg});
+  }, 800);
+}
+
+function askRegionAI(name){
+  switchRpTab(0);
+  document.getElementById('chat-input').value = `حلل الوضع الوبائي في منطقة ${name} وأعطِ توصياتٍ ميدانية عاجلة.`;
+  sendChat();
+}
+
+function showMapNotif(msg, duration=3000){
+  const el = document.getElementById('ai-map-notif');
+  el.textContent = msg;
+  el.style.display='block';
+  setTimeout(()=>{ el.style.display='none'; }, duration);
+}
+
+// ══════════════════════════════════════════════════════════
+//  ② TIME SLIDER — Spatiotemporal Spread Simulation
+// ══════════════════════════════════════════════════════════
+let timeSliderOn=false, playInterval=null, simDay=0;
+let baseOutbreaks=[]; // snapshot of original outbreak data
+
+// Simulate spread: each day increases risk scores slightly based on disease spread rate
+function getSimulatedState(day){
+  return OUTBREAKS.map(o=>{
+    const dis = DISEASES[o.dis];
+    const growRate = dis.airborne ? 0.8 : 0.4; // daily risk increase
+    const newRisk = Math.min(99, o.risk + Math.round(day * growRate * (1 - o.risk/100)));
+    return {...o, risk: newRisk};
+  });
+}
+
+function onSliderChange(val){
+  simDay = parseInt(val);
+  document.getElementById('tsb-day-lbl').textContent = `يوم ${simDay}`;
+  // Simulate NRI and outbreak count change
+  const nri = Math.min(96, 72 + Math.round(simDay * 0.7));
+  const bou = Math.min(95, 66 + Math.round(simDay * 0.6));
+  document.getElementById('tsb-nri-val').textContent = nri;
+  document.getElementById('tsb-bou-val').textContent = bou;
+  // Re-render outbreaks with simulated risk scores
+  const simmed = getSimulatedState(simDay);
+  renderSimOutbreaks(simmed);
+  // Update polygons if on
+  if(polygonsOn){
+    const updatedRegs = KSA_REGIONS_GEO.map(r=>({
+      ...r, score: Math.min(98, r.score + Math.round(simDay*0.5*(r.bou/5)))
+    }));
+    if(polygonLayer){ map.removeLayer(polygonLayer); polygonLayer=null; }
+    const layers = updatedRegs.map(reg=>{
+      const col = getPolyColor(reg.score);
+      const latLngs = reg.coords.map(c=>[c[0],c[1]]);
+      const poly = L.polygon(latLngs,{color:col.border,weight:2,fillColor:col.fill,fillOpacity:0.22});
+      poly._reg = reg;
+      poly.on('click',()=>showRegionInfo(reg,poly));
+      poly.on('mouseover',()=>poly.setStyle({fillOpacity:0.38}));
+      poly.on('mouseout',()=>poly.setStyle({fillOpacity:0.22}));
+      const center=latLngs.reduce((a,c)=>[a[0]+c[0]/latLngs.length,a[1]+c[1]/latLngs.length],[0,0]);
+      const lbl=L.divIcon({className:'',html:`<div style="background:${col.fill};color:#fff;border:2px solid #fff;border-radius:6px;padding:2px 6px;font-family:'Cairo',sans-serif;font-size:10px;font-weight:900;white-space:nowrap;box-shadow:0 1px 5px rgba(0,0,0,0.2);">${reg.name} ${reg.score}%</div>`,iconAnchor:[0,0]});
+      const marker=L.marker(center,{icon:lbl,interactive:false});
+      return [poly,marker];
+    });
+    polygonLayer=L.layerGroup(layers.flat()).addTo(map);
+  }
+  // Update slider gradient
+  const pct = (simDay/30)*100;
+  const col = simDay<8?'var(--good)':simDay<18?'var(--amber)':'var(--red)';
+  document.getElementById('time-slider').style.background =
+    `linear-gradient(to right,${col} ${pct}%,var(--blt) ${pct}%)`;
+}
+
+function renderSimOutbreaks(outbreaks){
+  Object.values(outbreakLayers).forEach(l=>{try{map.removeLayer(l);}catch(e){}});
+  outbreakLayers={};
+  outbreaks.forEach(o=>{
+    const col=getRiskColor(o.risk); const tier=getRiskTier(o.risk);
+    const dis=DISEASES[o.dis]; const r=o.risk>=90?17:o.risk>=70?14:o.risk>=50?11:8;
+    const halo={critical:22,high:16,medium:10,low:6}[tier];
+    const total=r*2+halo*2;
+    const icon=L.divIcon({className:'',html:makeMarkerHTML(o,col,r),iconSize:[total,total],iconAnchor:[total/2,total/2]});
+    const m=L.marker([o.lat,o.lng],{icon,zIndexOffset:o.risk*10}).bindTooltip(
+      `<b>${o.farm}</b><br/>${dis.ar} — خطر: <b style="color:${col}">${o.risk}%</b>`,
+      {direction:'top',offset:[0,-(r+halo)]}
+    ).bindPopup(makePopup(o)).addTo(map);
+    const circle=L.circle([o.lat,o.lng],{radius:dis.spread*1000,color:col,fillColor:col,fillOpacity:tier==='critical'?0.09:0.05,weight:1,dashArray:'4,8'}).addTo(map);
+    outbreakLayers[o.id+'m']=m; outbreakLayers[o.id+'c']=circle;
+  });
+}
+
+function togglePlay(){
+  const btn=document.getElementById('time-play-btn');
+  if(playInterval){
+    clearInterval(playInterval); playInterval=null; btn.textContent='▶';
+  } else {
+    if(simDay>=30){ simDay=0; document.getElementById('time-slider').value=0; }
+    btn.textContent='⏸';
+    playInterval=setInterval(()=>{
+      simDay = Math.min(30, simDay+1);
+      document.getElementById('time-slider').value=simDay;
+      onSliderChange(simDay);
+      if(simDay>=30){ togglePlay(); }
+    }, 400);
+  }
+}
+
+function toggleTimeSlider(){
+  timeSliderOn=!timeSliderOn;
+  const bar=document.getElementById('time-slider-bar');
+  const btn=document.getElementById('time-toggle-btn');
+  bar.classList.toggle('show', timeSliderOn);
+  btn.classList.toggle('active', timeSliderOn);
+  if(!timeSliderOn){
+    // Reset to live state
+    if(playInterval){ clearInterval(playInterval); playInterval=null; document.getElementById('time-play-btn').textContent='▶'; }
+    simDay=0; document.getElementById('time-slider').value=0;
+    renderOutbreaks('all');
+    if(polygonsOn){ map.removeLayer(polygonLayer); polygonLayer=null; renderPolygons(); }
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  ③ AI → MAP FUNCTION CALLING
+// ══════════════════════════════════════════════════════════
+const REGION_NAMES_AR = ['الأحساء','القصيم','الرياض','جازان','حائل','نجران','تبوك','عسير','الباحة','الجوف','المدينة المنورة','الحدود الشمالية','عسير','الشرقية'];
+const REGION_ALIASES  = { 'المنطقة الشرقية':'الأحساء', 'الشرقية':'الأحساء', 'الحجاز':'المدينة المنورة' };
+
+function extractRegionFromText(text){
+  for(const [alias,canon] of Object.entries(REGION_ALIASES)){
+    if(text.includes(alias)) return canon;
+  }
+  for(const name of REGION_NAMES_AR){
+    if(text.includes(name)) return name;
+  }
+  return null;
+}
+
+function executeMapActions(text){
+  const region = extractRegionFromText(text);
+  if(region){
+    setTimeout(()=>{
+      highlightRegionByName(region);
+      showMapNotif(`🗺 الخريطة تعرض: ${region}`);
+    }, 300);
+    return true;
+  }
+  return false;
+}
+
+// Override addMsg to include map action button when region detected
+function addMsgWithMapAction(text, role){
+  const div = addMsg(text, role);
+  if(role==='ai'){
+    const region = extractRegionFromText(text);
+    if(region){
+      const btn = document.createElement('div');
+      btn.className='ai-map-action';
+      btn.innerHTML=`🗺 عرض ${region} على الخريطة`;
+      btn.onclick=()=>{ highlightRegionByName(region); showMapNotif(`🗺 الخريطة تعرض: ${region}`); };
+      div.appendChild(btn);
+      // Auto execute
+      executeMapActions(text);
+    }
+  }
+  return div;
+}
+
+window.addEventListener('load',function(){
+  initMap();
+  buildDisGrid();
+  buildLayerGrid();
+  buildFarmList();
+  buildCharts();
+  buildAlerts();
+
+  // Tab wiring — left
+  document.querySelectorAll('.lp-tab').forEach((t,i)=>t.addEventListener('click',()=>switchLpTab(i)));
+  // Tab wiring — right (alerts = default)
+  document.querySelectorAll('.rp-tab').forEach(t=>{
+    t.addEventListener('click',()=>{
+      const idx=parseInt(t.dataset.t);
+      switchRpTab(idx);
+    });
+  });
+  // فرض تفعيل تاب التنبيهات عند التحميل
+  switchRpTab(1);
+  // Map top filter
+  document.querySelectorAll('.mdf-btn').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.mdf-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    renderOutbreaks(b.dataset.d);
+  }));
+  // Quick questions
+  document.querySelectorAll('.qq-btn').forEach(b=>b.addEventListener('click',()=>quickAsk(b.dataset.q)));
+  // Chat enter key
+  document.getElementById('chat-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat();});
+
+  // Welcome message
+  setTimeout(()=>{
+    addMsg('مرحباً بك في EWIS 2.0 🌿\n\nأنا مساعدك الذكي لتحليل بيانات الإنذار المبكر. يمكنني الإجابة على أسئلتك بناءً على البيانات الحالية في النظام.\n\n💡 لتفعيل التحليل الذكي الكامل (Claude AI): اضغط زر ⚙ API في الشريط العلوي وأدخل مفتاحك. بدونه أعمل بردود ذكية محلية من بيانات النظام.','ai');
+  },600);
+
+  // Tab wiring — Report Center tabs
+  document.querySelectorAll('.rep-tab-btn').forEach(b=>{
+    b.addEventListener('click',()=>switchRepTab(b.dataset.rep));
+  });
+  // Tab wiring — Predictive Intelligence tabs
+  document.querySelectorAll('.pred-modal-tab').forEach((t,i)=>{
+    t.addEventListener('click',()=>switchPredTab(i));
+  });
+
+  setInterval(updateClock,1000);
+  updateClock();
+
+  // إصلاح حجم الخريطة عند تغيير نافذة المتصفح
+  window.addEventListener('resize', () => {
+    if(map) map.invalidateSize();
+  });
+});
+</script>
+</body>
+</html>
